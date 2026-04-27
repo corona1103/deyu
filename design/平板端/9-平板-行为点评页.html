@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>北大附小AI德育系统 - 行为点评</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+            padding-bottom: 160px;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: white;
+            padding: 50px 20px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #333;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            padding: 8px 15px;
+            background: #F5F5F5;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 视图切换 */
+        .view-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .view-tab {
+            flex-shrink: 0;
+            padding: 8px 18px;
+            background: #F5F5F5;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .view-tab.active {
+            background: #E8F4FD;
+            color: #4A90D9;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 15px;
+        }
+
+        /* 分组卡片 */
+        .group-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .group-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .group-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .group-card:nth-child(1) .group-icon { background: #FFE4B5; }
+        .group-card:nth-child(2) .group-icon { background: #E6E6FA; }
+        .group-card:nth-child(3) .group-icon { background: #B0E0E6; }
+        .group-card:nth-child(4) .group-icon { background: #98D8C8; }
+
+        .group-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .group-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .group-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .expand-btn {
+            color: #999;
+            font-size: 20px;
+        }
+
+        /* 学生列表 */
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .student-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #F8FAFC;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .student-card:active {
+            background: #E8F4FD;
+        }
+
+        .student-card.selected {
+            background: #E3F2FD;
+            border-color: #4A90D9;
+        }
+
+        .student-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .student-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+
+        .student-name {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .student-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-value {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .score-change {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .score-change.negative {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        /* 底部操作栏 */
+        .bottom-toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .toolbar-top {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tool-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .tool-icon {
+            font-size: 22px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+        }
+
+        .action-btn {
+            flex: 1;
+            height: 50px;
+            border-radius: 25px;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-btn.minus {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .action-btn.plus {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white;
+        }
+
+        /* 点评弹窗 */
+        .review-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .review-modal.active {
+            display: flex;
+        }
+
+        .review-content {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            width: 100%;
+            padding: 25px 20px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .review-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .review-close {
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .review-students {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .review-student-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #E8F4FD;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #4A90D9;
+        }
+
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .indicator-item {
+            padding: 15px;
+            background: #F8F8F8;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .indicator-item.selected {
+            background: #E8F5E9;
+            border-color: #4CAF50;
+        }
+
+        .indicator-item.negative.selected {
+            background: #FFEBEE;
+            border-color: #F44336;
+        }
+
+        .indicator-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .indicator-name {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .indicator-score {
+            font-size: 12px;
+            color: #4CAF50;
+            margin-top: 3px;
+        }
+
+        .indicator-score.negative {
+            color: #F44336;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 加分动画 */
+        .score-animation {
+            position: fixed;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            pointer-events: none;
+            animation: floatUp 1.5s ease-out forwards;
+            z-index: 300;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* 平板端样式 */
+        @media (min-width: 768px) {
+            .header {
+                padding: 20px 40px 15px;
+            }
+
+            .main-content {
+                padding: 20px 40px;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .students-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .toolbar-top {
+                justify-content: center;
+                gap: 40px;
+            }
+
+            .toolbar-actions {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+
+            .review-content {
+                max-width: 500px;
+                margin: auto;
+                border-radius: 25px;
+            }
+
+            .indicators-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                padding-bottom: 100px;
+            }
+
+            .students-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .bottom-toolbar {
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 800px;
+                border-radius: 20px 20px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-top">
+            <a href="8-平板-首页.html" class="back-btn">
+                <span>‹</span>
+                <span>返回</span>
+            </a>
+            <span class="page-title">行为点评</span>
+            <div class="header-actions">
+                <span class="header-btn">三年级1班</span>
+            </div>
+        </div>
+        <div class="view-tabs">
+            <div class="view-tab active">小组-常规</div>
+            <div class="view-tab">学生</div>
+            <div class="view-tab">座位表</div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 第一组 -->
+        <div class="group-card">
+            <div class="group-header">
+                <div class="group-info">
+                    <div class="group-icon">🐱</div>
+                    <div>
+                        <div class="group-name">孙沐昀组</div>
+                        <div class="group-stats">
+                            <span class="group-stat">⭐ 1.07k</span>
+                            <span class="group-stat">💎 134</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="expand-btn">›</span>
+            </div>
+            <div class="students-grid">
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">徐</div>
+                        <span class="student-name">徐婉云</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">235</span>
+                        <span class="score-change">+46</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">孙</div>
+                        <span class="student-name">孙沐昀</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">269</span>
+                        <span class="score-change">+29</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">刘</div>
+                        <span class="student-name">刘玥希</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">127</span>
+                        <span class="score-change">+18</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">毛</div>
+                        <span class="student-name">毛昱涵</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">160</span>
+                        <span class="score-change">+16</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二组 -->
+        <div class="group-card">
+            <div class="group-header">
+                <div class="group-info">
+                    <div class="group-icon">🐰</div>
+                    <div>
+                        <div class="group-name">张书斌组</div>
+                        <div class="group-stats">
+                            <span class="group-stat">⭐ 1.3k</span>
+                            <span class="group-stat">💎 138</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="expand-btn">›</span>
+            </div>
+            <div class="students-grid">
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">李</div>
+                        <span class="student-name">李渡嘉</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">270</span>
+                        <span class="score-change">+32</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">张</div>
+                        <span class="student-name">张书斌</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">244</span>
+                        <span class="score-change">+30</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">邱</div>
+                        <span class="student-name">邱翌泽</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">154</span>
+                        <span class="score-change">+20</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">张</div>
+                        <span class="student-name">张惟瑄</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">189</span>
+                        <span class="score-change">+18</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三组 -->
+        <div class="group-card">
+            <div class="group-header">
+                <div class="group-info">
+                    <div class="group-icon">🦊</div>
+                    <div>
+                        <div class="group-name">刘燕杭组</div>
+                        <div class="group-stats">
+                            <span class="group-stat">⭐ 1k</span>
+                            <span class="group-stat">💎 112</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="expand-btn">›</span>
+            </div>
+            <div class="students-grid">
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">马</div>
+                        <span class="student-name">马子扬</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">154</span>
+                        <span class="score-change">+28</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">张</div>
+                        <span class="student-name">张京钰</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">197</span>
+                        <span class="score-change">+21</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">刘</div>
+                        <span class="student-name">刘燕杭</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">212</span>
+                        <span class="score-change">+10</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">王</div>
+                        <span class="student-name">王泊远</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">173</span>
+                        <span class="score-change">+18</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第四组 -->
+        <div class="group-card">
+            <div class="group-header">
+                <div class="group-info">
+                    <div class="group-icon">🐸</div>
+                    <div>
+                        <div class="group-name">李嘉懿组</div>
+                        <div class="group-stats">
+                            <span class="group-stat">⭐ 857</span>
+                            <span class="group-stat">💎 93</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="expand-btn">›</span>
+            </div>
+            <div class="students-grid">
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">程</div>
+                        <span class="student-name">程浩月</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">214</span>
+                        <span class="score-change">+28</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">孙</div>
+                        <span class="student-name">孙雅诺</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">142</span>
+                        <span class="score-change">+23</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">陈</div>
+                        <span class="student-name">陈翌泽</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">141</span>
+                        <span class="score-change">+14</span>
+                    </div>
+                </div>
+                <div class="student-card" onclick="toggleSelect(this)">
+                    <div class="student-left">
+                        <div class="student-avatar">李</div>
+                        <span class="student-name">李嘉懿</span>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-value">112</span>
+                        <span class="score-change">+10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-toolbar">
+        <div class="toolbar-top">
+            <div class="tool-item">
+                <span class="tool-icon">🎲</span>
+                <span>随机点名</span>
+            </div>
+            <div class="tool-item">
+                <span class="tool-icon">⏱️</span>
+                <span>计时器</span>
+            </div>
+            <div class="tool-item">
+                <span class="tool-icon">🔍</span>
+                <span>找学生</span>
+            </div>
+            <div class="tool-item">
+                <span class="tool-icon">👥</span>
+                <span>多人点评</span>
+            </div>
+        </div>
+        <div class="toolbar-actions">
+            <button class="action-btn minus" onclick="openReview('minus')">➖ 扣分</button>
+            <button class="action-btn plus" onclick="openReview('plus')">➕ 加分</button>
+        </div>
+    </div>
+
+    <!-- 点评弹窗 -->
+    <div class="review-modal" id="reviewModal">
+        <div class="review-content">
+            <div class="review-header">
+                <span class="review-title" id="reviewTitle">选择加分项目</span>
+                <span class="review-close" onclick="closeReview()">×</span>
+            </div>
+            <div class="review-students" id="selectedStudents">
+                <!-- 动态填充选中的学生 -->
+            </div>
+            <div class="indicators-grid" id="indicatorsGrid">
+                <!-- 动态填充指标 -->
+            </div>
+            <button class="confirm-btn" onclick="confirmReview()">确认点评</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedStudents = [];
+        let reviewType = 'plus';
+
+        function toggleSelect(card) {
+            card.classList.toggle('selected');
+            updateSelectedStudents();
+        }
+
+        function updateSelectedStudents() {
+            selectedStudents = [];
+            document.querySelectorAll('.student-card.selected').forEach(card => {
+                const name = card.querySelector('.student-name').textContent;
+                selectedStudents.push(name);
+            });
+        }
+
+        function openReview(type) {
+            if (selectedStudents.length === 0) {
+                alert('请先选择学生');
+                return;
+            }
+
+            reviewType = type;
+            const modal = document.getElementById('reviewModal');
+            const title = document.getElementById('reviewTitle');
+            const studentsContainer = document.getElementById('selectedStudents');
+            const indicatorsGrid = document.getElementById('indicatorsGrid');
+
+            title.textContent = type === 'plus' ? '选择加分项目' : '选择扣分项目';
+
+            // 显示选中的学生
+            studentsContainer.innerHTML = selectedStudents.map(name =>
+                `<div class="review-student-tag"><span>${name}</span></div>`
+            ).join('');
+
+            // 显示指标
+            const indicators = type === 'plus' ? [
+                { icon: '📚', name: '认真听讲', score: '+2' },
+                { icon: '✋', name: '积极发言', score: '+2' },
+                { icon: '📝', name: '作业优秀', score: '+3' },
+                { icon: '🤝', name: '乐于助人', score: '+2' },
+                { icon: '🧹', name: '值日认真', score: '+2' },
+                { icon: '🏃', name: '体育积极', score: '+2' },
+            ] : [
+                { icon: '😴', name: '上课走神', score: '-1' },
+                { icon: '📱', name: '玩手机', score: '-2' },
+                { icon: '🗣️', name: '课堂讲话', score: '-1' },
+                { icon: '📋', name: '作业未交', score: '-2' },
+                { icon: '⏰', name: '迟到', score: '-1' },
+                { icon: '😤', name: '打架', score: '-5' },
+            ];
+
+            indicatorsGrid.innerHTML = indicators.map(ind => `
+                <div class="indicator-item ${type === 'minus' ? 'negative' : ''}" onclick="selectIndicator(this)">
+                    <div class="indicator-icon">${ind.icon}</div>
+                    <div class="indicator-name">${ind.name}</div>
+                    <div class="indicator-score ${type === 'minus' ? 'negative' : ''}">${ind.score}</div>
+                </div>
+            `).join('');
+
+            modal.classList.add('active');
+        }
+
+        function closeReview() {
+            document.getElementById('reviewModal').classList.remove('active');
+        }
+
+        function selectIndicator(item) {
+            document.querySelectorAll('.indicator-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+        }
+
+        function confirmReview() {
+            const selectedIndicator = document.querySelector('.indicator-item.selected');
+            if (!selectedIndicator) {
+                alert('请选择一个指标');
+                return;
+            }
+
+            const score = selectedIndicator.querySelector('.indicator-score').textContent;
+
+            // 显示加分动画
+            selectedStudents.forEach((name, index) => {
+                setTimeout(() => {
+                    showScoreAnimation(score);
+                }, index * 200);
+            });
+
+            // 清除选中状态
+            document.querySelectorAll('.student-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            selectedStudents = [];
+
+            closeReview();
+        }
+
+        function showScoreAnimation(score) {
+            const anim = document.createElement('div');
+            anim.className = 'score-animation';
+            anim.textContent = score + '分';
+            anim.style.left = (window.innerWidth / 2) + 'px';
+            anim.style.top = (window.innerHeight / 2) + 'px';
+            if (score.includes('-')) {
+                anim.style.color = '#F44336';
+            }
+            document.body.appendChild(anim);
+            setTimeout(() => anim.remove(), 1500);
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('reviewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReview();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+// 颜色变量
+$primary: #8B0000;
+$primary-light: #A52A2A;
+$secondary: #4A90D9;
+$secondary-light: #6BA3E0;
+$success: #4CAF50;
+$warning: #FF9800;
+$danger: #F44336;
+
+// 灰度
+$gray-50: #F8FAFC;
+$gray-100: #F5F7FA;
+$gray-200: #E0E0E0;
+$gray-300: #BDBDBD;
+$gray-400: #9E9E9E;
+$gray-500: #757575;
+$gray-600: #616161;
+$gray-700: #424242;
+$gray-800: #333333;
+$gray-900: #212121;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// 圆角
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 20px;
+$radius-xl: 25px;
+$radius-full: 9999px;
+
+// 断点
+$breakpoint-sm: 375px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+
+// 安全区域
+$safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+// 底部导航高度
+$bottom-nav-height: 70px;
+$bottom-toolbar-height: 140px;
+
+// 阴影
+$shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);

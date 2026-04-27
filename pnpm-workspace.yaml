@@ -1,0 +1,4 @@
+packages:
+  - 'deyu-bigscreen'
+  - 'deyu-tablet'
+  - 'packages/*'

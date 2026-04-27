@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>北大附小AI德育系统 - 预警中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: white;
+            padding: 50px 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #333;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-placeholder {
+            width: 60px;
+        }
+
+        /* 统计概览 */
+        .stats-overview {
+            background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
+            padding: 25px 20px;
+            color: white;
+        }
+
+        .stats-title {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 筛选标签 */
+        .filter-tabs {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .filter-tab {
+            flex-shrink: 0;
+            padding: 8px 18px;
+            background: #F5F5F5;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-tab.active {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .filter-tab.warning {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        .filter-count {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        /* 主内容 */
+        .main-content {
+            padding: 20px;
+        }
+
+        /* 预警学生卡片 */
+        .warning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid;
+        }
+
+        .warning-card.danger {
+            border-left-color: #F44336;
+        }
+
+        .warning-card.warning {
+            border-left-color: #FF9800;
+        }
+
+        .warning-card.info {
+            border-left-color: #2196F3;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .student-detail {
+            flex: 1;
+        }
+
+        .student-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .student-class {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .warning-level {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .warning-level.danger {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .warning-level.warning {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        .warning-level.info {
+            background: #E3F2FD;
+            color: #2196F3;
+        }
+
+        /* 预警原因 */
+        .warning-reasons {
+            margin-bottom: 15px;
+        }
+
+        .reason-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .reason-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reason-tag {
+            padding: 6px 12px;
+            background: #F5F5F5;
+            border-radius: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 建议措施 */
+        .suggestion-box {
+            background: #FFF8E1;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #FF9800;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .suggestion-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 操作按钮 */
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #4A90D9, #6BA3E0);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: #F5F5F5;
+            color: #666;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        .empty-text {
+            font-size: 16px;
+        }
+
+        /* 平板端样式 */
+        @media (min-width: 768px) {
+            .header {
+                padding: 20px 40px;
+            }
+
+            .stats-overview {
+                padding: 30px 40px;
+            }
+
+            .filter-tabs {
+                padding: 15px 40px;
+            }
+
+            .main-content {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 30px 40px;
+            }
+
+            .card-actions {
+                justify-content: flex-end;
+            }
+
+            .action-btn {
+                flex: none;
+                padding: 12px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <a href="8-平板-首页.html" class="back-btn">
+            <span>‹</span>
+            <span>返回</span>
+        </a>
+        <span class="page-title">预警中心</span>
+        <div class="header-placeholder"></div>
+    </header>
+
+    <!-- 统计概览 -->
+    <div class="stats-overview">
+        <div class="stats-title">三年级1班 预警统计</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">3</div>
+                <div class="stat-label">预警学生</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">1</div>
+                <div class="stat-label">高风险</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">2</div>
+                <div class="stat-label">需关注</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 筛选标签 -->
+    <div class="filter-tabs">
+        <div class="filter-tab active">
+            全部
+            <span class="filter-count">3</span>
+        </div>
+        <div class="filter-tab">
+            高风险
+            <span class="filter-count">1</span>
+        </div>
+        <div class="filter-tab warning">
+            需关注
+            <span class="filter-count">2</span>
+        </div>
+        <div class="filter-tab">
+            已处理
+            <span class="filter-count">5</span>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- 高风险学生 -->
+        <div class="warning-card danger">
+            <div class="card-header">
+                <div class="student-info">
+                    <div class="student-avatar">王</div>
+                    <div class="student-detail">
+                        <div class="student-name">王浩</div>
+                        <div class="student-class">三年级1班 · 第2组</div>
+                    </div>
+                </div>
+                <div class="warning-level danger">高风险</div>
+            </div>
+
+            <div class="warning-reasons">
+                <div class="reason-title">预警原因：</div>
+                <div class="reason-tags">
+                    <span class="reason-tag">本周违纪2次</span>
+                    <span class="reason-tag">与同学发生冲突</span>
+                    <span class="reason-tag">情绪波动较大</span>
+                </div>
+            </div>
+
+            <div class="suggestion-box">
+                <div class="suggestion-title">💡 建议措施</div>
+                <div class="suggestion-text">
+                    1. 建议与家长沟通，了解近期家庭情况<br>
+                    2. 安排心理辅导老师进行一对一谈话<br>
+                    3. 课间关注其与同学的互动情况
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="action-btn secondary">📋 查看报告</button>
+                <button class="action-btn primary">💬 AI对话</button>
+            </div>
+        </div>
+
+        <!-- 需关注学生1 -->
+        <div class="warning-card warning">
+            <div class="card-header">
+                <div class="student-info">
+                    <div class="student-avatar">李</div>
+                    <div class="student-detail">
+                        <div class="student-name">李明</div>
+                        <div class="student-class">三年级1班 · 第3组</div>
+                    </div>
+                </div>
+                <div class="warning-level warning">需关注</div>
+            </div>
+
+            <div class="warning-reasons">
+                <div class="reason-title">预警原因：</div>
+                <div class="reason-tags">
+                    <span class="reason-tag">作业连续3天未交</span>
+                    <span class="reason-tag">课堂参与度下降</span>
+                </div>
+            </div>
+
+            <div class="suggestion-box">
+                <div class="suggestion-title">💡 建议措施</div>
+                <div class="suggestion-text">
+                    1. 课后单独询问作业未完成原因<br>
+                    2. 关注是否有学习困难，适当提供辅导
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="action-btn secondary">📋 查看报告</button>
+                <button class="action-btn primary">💬 AI对话</button>
+            </div>
+        </div>
+
+        <!-- 需关注学生2 -->
+        <div class="warning-card warning">
+            <div class="card-header">
+                <div class="student-info">
+                    <div class="student-avatar">张</div>
+                    <div class="student-detail">
+                        <div class="student-name">张小芳</div>
+                        <div class="student-class">三年级1班 · 第1组</div>
+                    </div>
+                </div>
+                <div class="warning-level warning">需关注</div>
+            </div>
+
+            <div class="warning-reasons">
+                <div class="reason-title">预警原因：</div>
+                <div class="reason-tags">
+                    <span class="reason-tag">近期较为沉默</span>
+                    <span class="reason-tag">与同学互动减少</span>
+                </div>
+            </div>
+
+            <div class="suggestion-box">
+                <div class="suggestion-title">💡 建议措施</div>
+                <div class="suggestion-text">
+                    1. 安排小组活动，增加其参与机会<br>
+                    2. 私下温和询问近期是否有烦恼
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="action-btn secondary">📋 查看报告</button>
+                <button class="action-btn primary">💬 AI对话</button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

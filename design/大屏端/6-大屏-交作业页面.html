@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>北大附小AI德育系统 - 交作业</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(180deg, #E8F4FD 0%, #F5F9FC 100%);
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #4A90D9, #6BA3E0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .class-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            color: #333;
+            padding: 8px 16px;
+            background: #F5F5F5;
+            border-radius: 20px;
+        }
+
+        .class-selector select {
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: #4A90D9;
+            font-weight: bold;
+            background: #E8F4FD;
+        }
+
+        .nav-item:hover {
+            background: #F0F7FF;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav-btn:hover {
+            background: #F0F7FF;
+            color: #4A90D9;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 60px 20px;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title-icon {
+            font-size: 32px;
+        }
+
+        .page-title-text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .create-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4A90D9, #6BA3E0);
+            color: white;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(74, 144, 217, 0.3);
+            transition: all 0.3s;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 217, 0.4);
+        }
+
+        /* 主内容区 */
+        .main-content {
+            display: flex;
+            padding: 0 60px 40px;
+            gap: 40px;
+            height: calc(100% - 70px - 100px);
+        }
+
+        /* 左侧：作业列表 */
+        .homework-list-section {
+            width: 500px;
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-indicator {
+            width: 5px;
+            height: 24px;
+            background: #4A90D9;
+            border-radius: 3px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .homework-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .homework-item {
+            padding: 20px;
+            border: 2px solid #E8F4FD;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .homework-item:hover {
+            border-color: #4A90D9;
+            background: #F8FAFC;
+        }
+
+        .homework-item.active {
+            border-color: #4A90D9;
+            background: #E8F4FD;
+        }
+
+        .homework-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .homework-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .homework-subject {
+            padding: 4px 12px;
+            background: #E8F4FD;
+            border-radius: 10px;
+            color: #4A90D9;
+        }
+
+        .homework-deadline {
+            color: #999;
+        }
+
+        /* 右侧：提交情况 */
+        .submission-section {
+            flex: 1;
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .submission-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .submission-count {
+            padding: 8px 20px;
+            background: #E8F5E9;
+            border-radius: 20px;
+            color: #4CAF50;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .submission-count.warning {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        /* 学生卡片网格 */
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+        }
+
+        .student-card {
+            padding: 20px 15px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .student-card.not-submitted {
+            background: #FFF5F5;
+            border-color: #FFCDD2;
+        }
+
+        .student-card.not-submitted:hover {
+            background: #FFEBEE;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(244, 67, 54, 0.2);
+        }
+
+        .student-card.submitted {
+            background: #F5F5F5;
+            border-color: #E0E0E0;
+            opacity: 0.6;
+        }
+
+        .student-card-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .student-card-status {
+            font-size: 14px;
+            padding: 4px 12px;
+            border-radius: 10px;
+        }
+
+        .student-card.not-submitted .student-card-status {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .student-card.submitted .student-card-status {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-text {
+            font-size: 18px;
+        }
+
+        /* 统计信息 */
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .stat-dot.submitted { background: #4CAF50; }
+        .stat-dot.not-submitted { background: #F44336; }
+
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 提示文字 */
+        .hint-text {
+            text-align: center;
+            padding: 15px;
+            background: #FFF8E1;
+            border-radius: 10px;
+            color: #FF9800;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* 加分动画 */
+        @keyframes checkmark {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .student-card.just-submitted {
+            animation: checkmark 0.5s ease-out;
+        }
+
+        .student-card.just-submitted::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: #4CAF50;
+        }
+
+        /* 得分飘动动画 */
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(1.2);
+            }
+        }
+
+        .score-animation {
+            position: fixed;
+            font-size: 28px;
+            font-weight: bold;
+            color: #4CAF50;
+            pointer-events: none;
+            animation: floatUp 1.5s ease-out forwards;
+            z-index: 1000;
+        }
+
+        .score-animation.late {
+            color: #FF9800;
+        }
+
+        /* 创建作业弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px 50px;
+            border-radius: 25px;
+            width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal-close {
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            height: 55px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 0 20px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #4A90D9;
+        }
+
+        .form-input[type="datetime-local"] {
+            padding: 0 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #4A90D9, #6BA3E0);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 217, 0.4);
+        }
+
+        .modal-btn.secondary {
+            background: #F5F5F5;
+            color: #666;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #E0E0E0;
+        }
+    </style>
+    <script src="scale.js"></script>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo">🎓</div>
+            <div class="class-selector">
+                <select onchange="switchClass(this.value)">
+                    <option value="3-14" selected>三年级14班</option>
+                    <option value="3-13">三年级13班</option>
+                    <option value="3-12">三年级12班</option>
+                </select>
+                <span style="font-size: 12px; color: #999;">▼</span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <a href="4-大屏-点评页面.html" class="nav-item">点评</a>
+            <a href="5-大屏-排行榜页面.html" class="nav-item">排行榜</a>
+            <a href="6-大屏-交作业页面.html" class="nav-item active">交作业</a>
+        </div>
+        <div class="nav-right">
+            <a href="3-大屏-首页.html" class="nav-btn">🏠 首页</a>
+            <div class="user-avatar">张</div>
+            <span>张老师</span>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div class="page-title">
+            <span class="page-title-icon">📋</span>
+            <span class="page-title-text">作业跟踪面板</span>
+        </div>
+        <div class="create-btn" onclick="openCreateModal()">
+            <span>+</span>
+            <span>创建作业</span>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 左侧：作业列表 -->
+        <div class="homework-list-section">
+            <div class="section-header">
+                <div class="section-indicator"></div>
+                <span class="section-title">作业列表</span>
+            </div>
+            <div class="homework-items">
+                <div class="homework-item active">
+                    <div class="homework-name">数学作业</div>
+                    <div class="homework-meta">
+                        <span class="homework-subject">数学</span>
+                        <span class="homework-deadline">截止: 4/30/2026, 12:00:00 AM</span>
+                    </div>
+                </div>
+                <div class="homework-item">
+                    <div class="homework-name">语文周记</div>
+                    <div class="homework-meta">
+                        <span class="homework-subject">语文</span>
+                        <span class="homework-deadline">截止: 4/28/2026, 6:00:00 PM</span>
+                    </div>
+                </div>
+                <div class="homework-item">
+                    <div class="homework-name">英语单词抄写</div>
+                    <div class="homework-meta">
+                        <span class="homework-subject">英语</span>
+                        <span class="homework-deadline">截止: 4/25/2026, 8:00:00 AM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：提交情况 -->
+        <div class="submission-section">
+            <div class="submission-header">
+                <div class="submission-title">
+                    <div class="section-indicator"></div>
+                    <span class="section-title">数学作业 - 提交情况</span>
+                </div>
+                <div class="submission-count warning">已提交 0/3</div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-dot submitted"></div>
+                    <span class="stat-label">已交</span>
+                    <span class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-dot not-submitted"></div>
+                    <span class="stat-label">未交</span>
+                    <span class="stat-value">3</span>
+                </div>
+            </div>
+
+            <div class="hint-text">
+                💡 点击学生姓名可标记为已提交
+            </div>
+
+            <div class="students-grid">
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">张小明</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">李小红</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">赵小刚</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">王小丽</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">刘小华</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">陈小军</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">杨小芳</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card not-submitted" onclick="markSubmitted(this, event)">
+                    <div class="student-card-name">周小伟</div>
+                    <div class="student-card-status">未交</div>
+                </div>
+                <div class="student-card submitted">
+                    <div class="student-card-name">吴小梅</div>
+                    <div class="student-card-status">已交</div>
+                </div>
+                <div class="student-card submitted">
+                    <div class="student-card-name">郑小强</div>
+                    <div class="student-card-status">已交</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 创建作业弹窗 -->
+    <div class="modal-overlay" id="createModal" onclick="closeCreateModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span class="modal-title">创建新作业</span>
+                <span class="modal-close" onclick="closeCreateModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">学科</label>
+                <select class="form-select" id="subjectSelect">
+                    <option value="语文">语文</option>
+                    <option value="数学">数学</option>
+                    <option value="英语">英语</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">作业标题</label>
+                <input type="text" class="form-input" id="homeworkTitle" placeholder="请输入作业标题">
+            </div>
+            <div class="form-group">
+                <label class="form-label">提交截止时间</label>
+                <input type="datetime-local" class="form-input" id="deadline">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeCreateModal()">取消</button>
+                <button class="modal-btn primary" onclick="createHomework()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function markSubmitted(card, event) {
+            if (card.classList.contains('not-submitted')) {
+                card.classList.remove('not-submitted');
+                card.classList.add('submitted', 'just-submitted');
+                card.querySelector('.student-card-status').textContent = '已交';
+
+                // 判断是否超时（示例：根据当前作业截止时间判断）
+                const isOnTime = true; // In production, compare with deadline
+                const points = isOnTime ? '+2分' : '+1分';
+
+                // 创建得分飘动动画
+                const anim = document.createElement('div');
+                anim.className = 'score-animation' + (isOnTime ? '' : ' late');
+                anim.textContent = points;
+                anim.style.left = (event ? event.pageX : card.offsetLeft + 70) + 'px';
+                anim.style.top = (event ? event.pageY : card.offsetTop + 30) + 'px';
+                document.body.appendChild(anim);
+
+                setTimeout(() => anim.remove(), 1500);
+
+                // 更新统计
+                updateStats();
+
+                // 移除动画类
+                setTimeout(() => {
+                    card.classList.remove('just-submitted');
+                }, 500);
+            }
+        }
+
+        function updateStats() {
+            const total = document.querySelectorAll('.student-card').length;
+            const submitted = document.querySelectorAll('.student-card.submitted').length;
+            const notSubmitted = total - submitted;
+
+            document.querySelector('.submission-count').textContent = `已提交 ${submitted}/${total}`;
+            document.querySelectorAll('.stat-value')[0].textContent = submitted;
+            document.querySelectorAll('.stat-value')[1].textContent = notSubmitted;
+
+            if (submitted === total) {
+                document.querySelector('.submission-count').classList.remove('warning');
+            }
+        }
+
+        function openCreateModal() {
+            // 设置默认截止时间为当天17:00
+            const today = new Date();
+            today.setHours(17, 0, 0, 0);
+            const formattedDate = today.toISOString().slice(0, 16);
+            document.getElementById('deadline').value = formattedDate;
+
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function closeCreateModal(event) {
+            if (!event || event.target.classList.contains('modal-overlay')) {
+                document.getElementById('createModal').classList.remove('active');
+            }
+        }
+
+        function createHomework() {
+            const subject = document.getElementById('subjectSelect').value;
+            const title = document.getElementById('homeworkTitle').value;
+            const deadline = document.getElementById('deadline').value;
+
+            if (!title) {
+                alert('请输入作业标题');
+                return;
+            }
+
+            console.log('创建作业:', { subject, title, deadline });
+            // In production, this would send to backend API
+            alert(`成功创建作业：${subject} - ${title}`);
+            closeCreateModal();
+
+            // Reset form
+            document.getElementById('homeworkTitle').value = '';
+        }
+
+        function switchClass(classId) {
+            console.log('切换到班级:', classId);
+            // In production, this would reload data for the selected class
+        }
+
+        // 初始化统计
+        updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>北大附小AI德育系统 - 首页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
+            padding: 50px 20px 30px;
+            color: white;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8B0000;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .user-detail {
+            text-align: left;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .user-class {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* 快速发布作业入口 */
+        .quick-homework {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .quick-homework-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .quick-homework-text {
+            flex: 1;
+        }
+
+        .quick-homework-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .quick-homework-hint {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .quick-homework-arrow {
+            font-size: 20px;
+            opacity: 0.6;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        /* 功能入口网格 */
+        .function-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .function-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .function-card:active {
+            transform: scale(0.98);
+        }
+
+        .function-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 28px;
+        }
+
+        .function-card:nth-child(1) .function-icon { background: linear-gradient(135deg, #FFB6C1, #FFC0CB); }
+        .function-card:nth-child(2) .function-icon { background: linear-gradient(135deg, #87CEEB, #ADD8E6); }
+        .function-card:nth-child(3) .function-icon { background: linear-gradient(135deg, #98D8C8, #B8E6D9); }
+        .function-card:nth-child(4) .function-icon { background: linear-gradient(135deg, #F7DC6F, #F9E79F); }
+        .function-card:nth-child(5) .function-icon { background: linear-gradient(135deg, #E6E6FA, #D8BFD8); }
+        .function-card:nth-child(6) .function-icon { background: linear-gradient(135deg, #DDA0DD, #EE82EE); }
+
+        .function-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .function-desc {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 今日概况 */
+        .today-overview {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .overview-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .overview-more {
+            font-size: 14px;
+            color: #8B0000;
+        }
+
+        .overview-stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .stat-card.warning .stat-value {
+            color: #FF9800;
+        }
+
+        .stat-card.danger .stat-value {
+            color: #F44336;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #8B0000;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        /* 快速发布弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            width: 100%;
+            max-height: 80vh;
+            padding: 20px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal-close {
+            width: 30px;
+            height: 30px;
+            background: #F5F5F5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .homework-input {
+            width: 100%;
+            height: 120px;
+            border: 1px solid #E0E0E0;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 16px;
+            resize: none;
+            margin-bottom: 15px;
+        }
+
+        .homework-input:focus {
+            outline: none;
+            border-color: #8B0000;
+        }
+
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .voice-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #F5F5F5;
+            border-radius: 25px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .voice-btn.recording {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .submit-homework-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #8B0000, #A52A2A);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 平板端样式 */
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+
+            .header {
+                padding: 30px 40px;
+            }
+
+            .main-content {
+                padding: 30px 40px;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .function-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+
+            .function-card {
+                padding: 35px 25px;
+            }
+
+            .function-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 32px;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .modal-content {
+                max-width: 500px;
+                border-radius: 25px;
+                margin: auto;
+            }
+        }
+
+        /* 大平板横屏 */
+        @media (min-width: 1024px) {
+            .layout-wrapper {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 250px;
+                background: white;
+                min-height: 100vh;
+                padding: 30px 20px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            }
+
+            .sidebar-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding-bottom: 30px;
+                border-bottom: 1px solid #f0f0f0;
+                margin-bottom: 30px;
+            }
+
+            .sidebar-logo-icon {
+                width: 45px;
+                height: 45px;
+                background: linear-gradient(135deg, #8B0000, #A52A2A);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+            }
+
+            .sidebar-logo-text {
+                font-size: 16px;
+                font-weight: bold;
+                color: #333;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .sidebar-nav-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 15px;
+                border-radius: 12px;
+                color: #666;
+                text-decoration: none;
+                transition: all 0.3s;
+            }
+
+            .sidebar-nav-item.active {
+                background: #FFF5F5;
+                color: #8B0000;
+            }
+
+            .sidebar-nav-item:hover {
+                background: #F5F5F5;
+            }
+
+            .main-area {
+                flex: 1;
+                background: #F5F7FA;
+            }
+
+            .header {
+                border-radius: 0;
+            }
+
+            .function-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-top">
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <div class="user-detail">
+                    <div class="user-name">张老师</div>
+                    <div class="user-class">三年级1班</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="header-btn">🔔</div>
+                <div class="header-btn">⚙️</div>
+            </div>
+        </div>
+
+        <!-- 快速发布作业 -->
+        <div class="quick-homework" onclick="openHomeworkModal()">
+            <div class="quick-homework-icon">📝</div>
+            <div class="quick-homework-text">
+                <div class="quick-homework-title">快速发布作业</div>
+                <div class="quick-homework-hint">语音/打字快速布置，同步大屏</div>
+            </div>
+            <span class="quick-homework-arrow">›</span>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="section-title">功能入口</div>
+        <div class="function-grid">
+            <a href="9-平板-行为点评页.html" class="function-card">
+                <div class="function-icon">⭐</div>
+                <div class="function-name">行为点评</div>
+                <div class="function-desc">给学生加减分</div>
+            </a>
+            <a href="10-平板-语音录入点评页.html" class="function-card">
+                <div class="function-icon">🎙️</div>
+                <div class="function-name">语音点评</div>
+                <div class="function-desc">AI智能记录</div>
+            </a>
+            <a href="11-平板-德育报告页.html" class="function-card">
+                <div class="function-icon">📊</div>
+                <div class="function-name">德育报告</div>
+                <div class="function-desc">查看学生报告</div>
+            </a>
+            <a href="12-平板-预警页.html" class="function-card">
+                <div class="function-icon">⚠️</div>
+                <div class="function-name">预警中心</div>
+                <div class="function-desc">关注问题学生</div>
+            </a>
+            <a href="13-平板-AI电话亭页.html" class="function-card">
+                <div class="function-icon">💬</div>
+                <div class="function-name">AI电话亭</div>
+                <div class="function-desc">心理对话辅导</div>
+            </a>
+            <a href="14-平板-班级管理页.html" class="function-card">
+                <div class="function-icon">👥</div>
+                <div class="function-name">班级管理</div>
+                <div class="function-desc">分组/座位/指标</div>
+            </a>
+        </div>
+
+        <!-- 今日概况 -->
+        <div class="today-overview">
+            <div class="overview-header">
+                <span class="overview-title">今日概况</span>
+                <span class="overview-more">查看详情 ›</span>
+            </div>
+            <div class="overview-stats">
+                <div class="stat-card">
+                    <div class="stat-value">28</div>
+                    <div class="stat-label">今日点评人次</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">待关注学生</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">未交作业</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部导航 (手机端) -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span>首页</span>
+        </a>
+        <a href="9-平板-行为点评页.html" class="nav-item">
+            <span class="nav-icon">⭐</span>
+            <span>点评</span>
+        </a>
+        <a href="11-平板-德育报告页.html" class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span>报告</span>
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>我的</span>
+        </a>
+    </nav>
+
+    <!-- 快速发布作业弹窗 -->
+    <div class="modal-overlay" id="homeworkModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">发布作业</span>
+                <div class="modal-close" onclick="closeHomeworkModal()">×</div>
+            </div>
+            <textarea class="homework-input" placeholder="请输入作业内容，如：完成数学练习册第15页"></textarea>
+            <div class="input-actions">
+                <div class="voice-btn" onclick="toggleRecording(this)">
+                    <span>🎙️</span>
+                    <span>语音输入</span>
+                </div>
+                <button class="submit-homework-btn">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openHomeworkModal() {
+            document.getElementById('homeworkModal').classList.add('active');
+        }
+
+        function closeHomeworkModal() {
+            document.getElementById('homeworkModal').classList.remove('active');
+        }
+
+        function toggleRecording(btn) {
+            btn.classList.toggle('recording');
+            if (btn.classList.contains('recording')) {
+                btn.querySelector('span:last-child').textContent = '录音中...';
+            } else {
+                btn.querySelector('span:last-child').textContent = '语音输入';
+            }
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('homeworkModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHomeworkModal();
+            }
+        });
+    </script>
+</body>
+</html>

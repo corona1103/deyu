@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>北大附小AI德育系统 - 排行榜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(180deg, #E8F4FD 0%, #F5F9FC 100%);
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #4A90D9, #6BA3E0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .class-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+            padding: 8px 16px;
+            background: #F5F5F5;
+            border-radius: 20px;
+        }
+
+        .class-selector select {
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-item {
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: #4A90D9;
+            font-weight: bold;
+            background: #E8F4FD;
+        }
+
+        .nav-item:hover {
+            background: #F0F7FF;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav-btn:hover {
+            background: #F0F7FF;
+            color: #4A90D9;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            display: flex;
+            height: calc(100% - 70px - 70px);
+            padding: 30px 40px;
+            gap: 30px;
+        }
+
+        /* 左侧：班级概况 */
+        .class-overview {
+            width: 550px;
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-decoration {
+            position: absolute;
+            top: -30px;
+            left: -30px;
+            font-size: 120px;
+            opacity: 0.1;
+        }
+
+        .overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .overview-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .overview-subtitle {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: #F5F5F5;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .praise-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: linear-gradient(90deg, #E8F5E9, #F1F8E9);
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .praise-icon {
+            width: 40px;
+            height: 40px;
+            background: #FFC107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .praise-text {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .praise-bar {
+            flex: 1;
+            height: 20px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .praise-bar-fill {
+            width: 85%;
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 10px;
+        }
+
+        .praise-score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 饼图区域 */
+        .chart-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .pie-chart {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #4A90D9 0% 86%,
+                #FF9800 86% 94%,
+                #9C27B0 94% 96%,
+                #E0E0E0 96% 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .pie-center {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pie-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .pie-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stats-detail {
+            flex: 1;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .stat-value.primary { color: #4A90D9; }
+        .stat-value.green { color: #4CAF50; }
+
+        .stat-percent {
+            font-size: 14px;
+            color: #999;
+            margin-left: 8px;
+        }
+
+        .total-score {
+            text-align: center;
+            padding: 20px;
+            background: #F8FAFC;
+            border-radius: 15px;
+        }
+
+        .total-score-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4A90D9;
+        }
+
+        .total-score-label {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .score-change {
+            color: #4CAF50;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        /* 右侧：榜单概况 */
+        .rankings-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rankings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .rankings-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .trophy-icon {
+            font-size: 36px;
+        }
+
+        .rankings-title-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .rankings-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 8px;
+            background: #F5F5F5;
+            padding: 6px;
+            border-radius: 30px;
+        }
+
+        .period-item {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .period-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .period-item.active {
+            background: white;
+            color: #4A90D9;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 榜单卡片网格 */
+        .rankings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            flex: 1;
+        }
+
+        .ranking-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ranking-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .ranking-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .ranking-card-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .ranking-card-title.green {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .ranking-card-title.blue {
+            background: #E3F2FD;
+            color: #2196F3;
+        }
+
+        .ranking-card-title.yellow {
+            background: #FFF8E1;
+            color: #FF9800;
+        }
+
+        .ranking-card-title.purple {
+            background: #F3E5F5;
+            color: #9C27B0;
+        }
+
+        .ranking-more {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+
+        .ranking-item:hover {
+            background: #F8FAFC;
+        }
+
+        .ranking-position {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .ranking-position.gold { color: #FFD700; }
+        .ranking-position.silver { color: #C0C0C0; }
+        .ranking-position.bronze { color: #CD7F32; }
+
+        .ranking-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .ranking-name {
+            flex: 1;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .ranking-score {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .score-badge {
+            width: 24px;
+            height: 24px;
+            background: #FFC107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+        }
+
+        /* 单项冠军特殊样式 */
+        .champion-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .champion-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #FFFDE7;
+            border-radius: 12px;
+        }
+
+        .champion-category {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .champion-star {
+            color: #FFD700;
+        }
+
+        /* 底部Tab */
+        .bottom-tabs {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            gap: 10px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-item {
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            background: #E3F2FD;
+            color: #4A90D9;
+            font-weight: bold;
+        }
+
+        .tab-item:hover:not(.active) {
+            background: #F5F5F5;
+        }
+
+        .tab-divider {
+            width: 1px;
+            height: 30px;
+            background: #eee;
+            margin: 0 10px;
+        }
+
+        .tab-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .date-range {
+            color: #4A90D9;
+            font-size: 16px;
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        /* 音乐按钮 */
+        .music-btn {
+            position: fixed;
+            left: 20px;
+            bottom: 100px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4A90D9, #6BA3E0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(74, 144, 217, 0.4);
+        }
+
+        /* 右侧工具 */
+        .side-tools {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .side-tool {
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            writing-mode: vertical-rl;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script src="scale.js"></script>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo">🎓</div>
+            <div class="class-selector">
+                <select onchange="switchClass(this.value)">
+                    <option value="3-14" selected>三年级14班</option>
+                    <option value="3-13">三年级13班</option>
+                    <option value="3-12">三年级12班</option>
+                </select>
+                <span style="font-size: 12px; color: #999;">▼</span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <a href="4-大屏-点评页面.html" class="nav-item">点评</a>
+            <a href="5-大屏-排行榜页面.html" class="nav-item active">排行榜</a>
+            <a href="6-大屏-交作业页面.html" class="nav-item">交作业</a>
+        </div>
+        <div class="nav-right">
+            <a href="3-大屏-首页.html" class="nav-btn">🏠 首页</a>
+            <div class="user-avatar">孙</div>
+            <span>孙晓炎</span>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 左侧：班级概况 -->
+        <div class="class-overview">
+            <div class="overview-decoration">🌸</div>
+            <div class="overview-header">
+                <div>
+                    <div class="overview-title">班级概况</div>
+                    <div class="overview-subtitle">共391条积分明细记录</div>
+                </div>
+            </div>
+
+            <div class="praise-badge">
+                <div class="praise-icon">😊</div>
+                <div class="praise-text">值得表扬</div>
+                <div class="praise-bar">
+                    <div class="praise-bar-fill"></div>
+                </div>
+                <div class="praise-score">695分</div>
+            </div>
+
+            <div class="chart-section">
+                <div class="pie-chart">
+                    <div class="pie-center">
+                        <div class="pie-label">值得</div>
+                        <div class="pie-value">表扬</div>
+                    </div>
+                </div>
+                <div class="stats-detail">
+                    <div class="total-score">
+                        <div>
+                            <span class="total-score-value">695</span>
+                            <span class="total-score-label">分</span>
+                            <span class="score-change">较上期↑404分</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">作业</span>
+                        <span class="stat-value primary">602 <span class="stat-percent">86.62%</span></span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">体育活动</span>
+                        <span class="stat-value green">53 <span class="stat-percent">7.63%</span></span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">阅读</span>
+                        <span class="stat-value">12 <span class="stat-percent">1.73%</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：榜单概况 -->
+        <div class="rankings-section">
+            <div class="rankings-header">
+                <div class="rankings-title">
+                    <span class="trophy-icon">🏆</span>
+                    <span class="rankings-title-text">榜单概况</span>
+                </div>
+                <div class="period-selector">
+                    <div class="period-item" onclick="switchPeriod('day', this)">本日</div>
+                    <div class="period-item active" onclick="switchPeriod('week', this)">本周</div>
+                    <div class="period-item" onclick="switchPeriod('month', this)">本月</div>
+                    <div class="period-item" onclick="switchPeriod('semester', this)">本学期</div>
+                </div>
+            </div>
+
+            <div class="rankings-grid">
+                <!-- 组榜 -->
+                <div class="ranking-card">
+                    <div class="ranking-card-header">
+                        <div class="ranking-card-title green">✨ 组榜 ✨</div>
+                        <span class="ranking-more">›</span>
+                    </div>
+                    <div class="ranking-list">
+                        <div class="ranking-item">
+                            <span class="ranking-position gold">🥇</span>
+                            <div class="ranking-avatar" style="background: #E8F5E9;">🐱</div>
+                            <span class="ranking-name">孙沐昀组</span>
+                            <div class="ranking-score">
+                                <span class="score-badge">★</span>
+                                <span>23.5</span>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="ranking-position silver">🥈</span>
+                            <div class="ranking-avatar" style="background: #F3E5F5;">🌸</div>
+                            <span class="ranking-name">张书斌组</span>
+                            <div class="ranking-score">
+                                <span class="score-badge">★</span>
+                                <span>21.14</span>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="ranking-position bronze">🥉</span>
+                            <div class="ranking-avatar" style="background: #E3F2FD;">🦊</div>
+                            <span class="ranking-name">刘燕杭组</span>
+                            <div class="ranking-score">
+                                <span class="score-badge">★</span>
+                                <span>20.17</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 个人榜 -->
+                <div class="ranking-card">
+                    <div class="ranking-card-header">
+                        <div class="ranking-card-title blue">✨ 个人榜 ✨</div>
+                        <span class="ranking-more">›</span>
+                    </div>
+                    <div class="ranking-list">
+                        <div class="ranking-item">
+                            <span class="ranking-position gold">🥇</span>
+                            <div class="ranking-avatar" style="background: #E8F5E9;">🐸</div>
+                            <span class="ranking-name">徐婉云</span>
+                            <div class="ranking-score">
+                                <span class="score-badge">★</span>
+                                <span>47</span>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="ranking-position silver">🥈</span>
+                            <div class="ranking-avatar" style="background: #FFEBEE;">🍓</div>
+                            <span class="ranking-name">李渡嘉</span>
+                            <div class="ranking-score">
+                                <span class="score-badge">★</span>
+                                <span>33</span>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="ranking-position bronze">🥉</span>
+                            <div class="ranking-avatar" style="background: #E8F5E9;">🌱</div>
+                            <span class="ranking-name">张书斌</span>
+                            <div class="ranking-score">
+                                <span class="score-badge">★</span>
+                                <span>32</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 进步榜 -->
+                <div class="ranking-card">
+                    <div class="ranking-card-header">
+                        <div class="ranking-card-title yellow">✨ 进步榜 ✨</div>
+                        <span class="ranking-more">›</span>
+                    </div>
+                    <div class="ranking-list">
+                        <div class="ranking-item">
+                            <span class="ranking-position gold">🥇</span>
+                            <div class="ranking-avatar" style="background: #E8F5E9;">🐸</div>
+                            <span class="ranking-name">徐婉云</span>
+                            <div class="ranking-score">
+                                <span class="score-badge" style="background: #4CAF50;">↑</span>
+                                <span style="color: #4CAF50;">+39</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 单项冠军 -->
+                <div class="ranking-card">
+                    <div class="ranking-card-header">
+                        <div class="ranking-card-title purple">✨ 单项冠军 ✨</div>
+                        <span class="ranking-more">›</span>
+                    </div>
+                    <div class="champion-grid">
+                        <div class="champion-item">
+                            <span class="champion-category">作业</span>
+                            <span class="champion-star">⭐</span>
+                        </div>
+                        <div class="champion-item">
+                            <span class="champion-category">体育活动</span>
+                            <span class="champion-star">⭐</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部Tab -->
+    <footer class="bottom-tabs">
+        <div class="tab-item active">单榜</div>
+        <div class="tab-item">总榜 ⊙</div>
+        <div class="tab-divider"></div>
+        <div class="tab-item">班级概况</div>
+        <div class="tab-item">组榜</div>
+        <div class="tab-item">个人榜</div>
+        <div class="tab-item">单项榜</div>
+        <div class="tab-item">进步榜</div>
+        <div class="tab-right">
+            <span class="date-range">本周04.13-04.17数据 ↔</span>
+            <span class="filter-btn">🔍 筛选</span>
+        </div>
+    </footer>
+
+    <!-- 音乐按钮 -->
+    <div class="music-btn">🎵</div>
+
+    <!-- 右侧工具 -->
+    <div class="side-tools">
+        <div class="side-tool">发奖记录</div>
+    </div>
+
+    <script>
+        // 切换统计周期
+        function switchPeriod(period, element) {
+            document.querySelectorAll('.period-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            console.log('切换周期:', period);
+            // In production, this would reload ranking data for the selected period
+        }
+
+        // 切换班级
+        function switchClass(classId) {
+            console.log('切换到班级:', classId);
+            // In production, this would reload data for the selected class
+        }
+
+        // 榜单卡片点击事件
+        document.querySelectorAll('.ranking-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.ranking-card-title').textContent.trim();
+                console.log('查看榜单详情:', title);
+                // In production, this would open a modal with full ranking details
+                alert('查看' + title + '完整详情');
+            });
+        });
+    </script>
+</body>
+</html>

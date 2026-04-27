@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>北大附小AI德育系统 - 班级管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: white;
+            padding: 50px 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #333;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-placeholder {
+            width: 60px;
+        }
+
+        /* Tab 导航 */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            font-size: 15px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            color: #8B0000;
+            font-weight: bold;
+            border-bottom-color: #8B0000;
+        }
+
+        /* 主内容 */
+        .main-content {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 通用卡片 */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .add-btn {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #8B0000, #A52A2A);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* === 分组管理 === */
+        .group-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .group-item {
+            background: #F8F9FA;
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .group-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .group-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .group-item:nth-child(1) .group-icon { background: #FFE4B5; }
+        .group-item:nth-child(2) .group-icon { background: #E6E6FA; }
+        .group-item:nth-child(3) .group-icon { background: #B0E0E6; }
+        .group-item:nth-child(4) .group-icon { background: #98D8C8; }
+
+        .group-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .group-count {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .group-action-btn {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .group-action-btn.edit {
+            background: #E8F4FD;
+            color: #4A90D9;
+        }
+
+        .group-action-btn.delete {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .group-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .member-tag {
+            padding: 6px 12px;
+            background: white;
+            border-radius: 15px;
+            font-size: 13px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .member-remove {
+            color: #999;
+            cursor: pointer;
+        }
+
+        /* === 座位管理 === */
+        .seat-grid-container {
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 60px);
+            gap: 10px;
+            justify-content: center;
+            min-width: fit-content;
+        }
+
+        .seat-item {
+            width: 60px;
+            height: 70px;
+            background: #E8F4FD;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .seat-item:hover {
+            border-color: #4A90D9;
+        }
+
+        .seat-item.empty {
+            background: #F5F5F5;
+            border: 2px dashed #ddd;
+            color: #999;
+        }
+
+        .seat-item.selected {
+            border-color: #8B0000;
+            background: #FFF5F5;
+        }
+
+        .seat-avatar {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .seat-name {
+            font-size: 11px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+            padding: 0 3px;
+        }
+
+        .teacher-desk {
+            grid-column: 1 / -1;
+            background: #8B0000;
+            color: white;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .seat-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .legend-dot.occupied { background: #E8F4FD; }
+        .legend-dot.empty { background: #F5F5F5; border: 1px dashed #ddd; }
+
+        /* === 指标管理 === */
+        .indicator-category {
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #F8F9FA;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .category-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .category-icon.green { background: #E8F5E9; }
+        .category-icon.red { background: #FFEBEE; }
+
+        .category-expand {
+            color: #999;
+            font-size: 16px;
+        }
+
+        .indicator-list {
+            padding-left: 20px;
+        }
+
+        .indicator-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .indicator-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .indicator-icon {
+            font-size: 20px;
+        }
+
+        .indicator-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .indicator-score {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .score-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .score-badge.positive {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .score-badge.negative {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .indicator-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .indicator-action {
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .indicator-action.edit {
+            background: #E8F4FD;
+            color: #4A90D9;
+        }
+
+        .indicator-action.delete {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        /* 平板端样式 */
+        @media (min-width: 768px) {
+            .header {
+                padding: 20px 40px 0;
+            }
+
+            .main-content {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 30px 40px;
+            }
+
+            .seat-grid {
+                grid-template-columns: repeat(8, 70px);
+            }
+
+            .seat-item {
+                width: 70px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-top">
+            <a href="8-平板-首页.html" class="back-btn">
+                <span>‹</span>
+                <span>返回</span>
+            </a>
+            <span class="page-title">班级管理</span>
+            <div class="header-placeholder"></div>
+        </div>
+        <div class="tab-nav">
+            <div class="tab-item active" onclick="switchTab(0)">分组管理</div>
+            <div class="tab-item" onclick="switchTab(1)">座位管理</div>
+            <div class="tab-item" onclick="switchTab(2)">点评指标</div>
+        </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- Tab 1: 分组管理 -->
+        <div class="tab-content active" id="tab-0">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">班级分组</span>
+                    <div class="add-btn">+ 新建分组</div>
+                </div>
+                <div class="group-list">
+                    <div class="group-item">
+                        <div class="group-header">
+                            <div class="group-info">
+                                <div class="group-icon">🐱</div>
+                                <div>
+                                    <div class="group-name">孙沐昀组</div>
+                                    <div class="group-count">4人</div>
+                                </div>
+                            </div>
+                            <div class="group-actions">
+                                <span class="group-action-btn edit">编辑</span>
+                                <span class="group-action-btn delete">删除</span>
+                            </div>
+                        </div>
+                        <div class="group-members">
+                            <span class="member-tag">孙沐昀 <span class="member-remove">×</span></span>
+                            <span class="member-tag">徐婉云 <span class="member-remove">×</span></span>
+                            <span class="member-tag">刘玥希 <span class="member-remove">×</span></span>
+                            <span class="member-tag">毛昱涵 <span class="member-remove">×</span></span>
+                        </div>
+                    </div>
+
+                    <div class="group-item">
+                        <div class="group-header">
+                            <div class="group-info">
+                                <div class="group-icon">🐰</div>
+                                <div>
+                                    <div class="group-name">张书斌组</div>
+                                    <div class="group-count">4人</div>
+                                </div>
+                            </div>
+                            <div class="group-actions">
+                                <span class="group-action-btn edit">编辑</span>
+                                <span class="group-action-btn delete">删除</span>
+                            </div>
+                        </div>
+                        <div class="group-members">
+                            <span class="member-tag">张书斌 <span class="member-remove">×</span></span>
+                            <span class="member-tag">李渡嘉 <span class="member-remove">×</span></span>
+                            <span class="member-tag">邱翌泽 <span class="member-remove">×</span></span>
+                            <span class="member-tag">张惟瑄 <span class="member-remove">×</span></span>
+                        </div>
+                    </div>
+
+                    <div class="group-item">
+                        <div class="group-header">
+                            <div class="group-info">
+                                <div class="group-icon">🦊</div>
+                                <div>
+                                    <div class="group-name">刘燕杭组</div>
+                                    <div class="group-count">4人</div>
+                                </div>
+                            </div>
+                            <div class="group-actions">
+                                <span class="group-action-btn edit">编辑</span>
+                                <span class="group-action-btn delete">删除</span>
+                            </div>
+                        </div>
+                        <div class="group-members">
+                            <span class="member-tag">刘燕杭 <span class="member-remove">×</span></span>
+                            <span class="member-tag">马子扬 <span class="member-remove">×</span></span>
+                            <span class="member-tag">张京钰 <span class="member-remove">×</span></span>
+                            <span class="member-tag">王泊远 <span class="member-remove">×</span></span>
+                        </div>
+                    </div>
+
+                    <div class="group-item">
+                        <div class="group-header">
+                            <div class="group-info">
+                                <div class="group-icon">🐸</div>
+                                <div>
+                                    <div class="group-name">李嘉懿组</div>
+                                    <div class="group-count">4人</div>
+                                </div>
+                            </div>
+                            <div class="group-actions">
+                                <span class="group-action-btn edit">编辑</span>
+                                <span class="group-action-btn delete">删除</span>
+                            </div>
+                        </div>
+                        <div class="group-members">
+                            <span class="member-tag">李嘉懿 <span class="member-remove">×</span></span>
+                            <span class="member-tag">程浩月 <span class="member-remove">×</span></span>
+                            <span class="member-tag">孙雅诺 <span class="member-remove">×</span></span>
+                            <span class="member-tag">陈翌泽 <span class="member-remove">×</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: 座位管理 -->
+        <div class="tab-content" id="tab-1">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">教室座位图</span>
+                    <div class="add-btn">📤 导出</div>
+                </div>
+                <div class="seat-grid-container">
+                    <div class="seat-grid">
+                        <div class="teacher-desk">讲 台</div>
+
+                        <div class="seat-item">
+                            <div class="seat-avatar">张</div>
+                            <div class="seat-name">张小明</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">李</div>
+                            <div class="seat-name">李小红</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">王</div>
+                            <div class="seat-name">王浩</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">刘</div>
+                            <div class="seat-name">刘芳</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">陈</div>
+                            <div class="seat-name">陈伟</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">赵</div>
+                            <div class="seat-name">赵明</div>
+                        </div>
+
+                        <div class="seat-item">
+                            <div class="seat-avatar">孙</div>
+                            <div class="seat-name">孙沐昀</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">徐</div>
+                            <div class="seat-name">徐婉云</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">毛</div>
+                            <div class="seat-name">毛昱涵</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">邱</div>
+                            <div class="seat-name">邱翌泽</div>
+                        </div>
+                        <div class="seat-item empty">
+                            <span>+</span>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">杨</div>
+                            <div class="seat-name">杨丽</div>
+                        </div>
+
+                        <div class="seat-item">
+                            <div class="seat-avatar">周</div>
+                            <div class="seat-name">周强</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">吴</div>
+                            <div class="seat-name">吴小梅</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">郑</div>
+                            <div class="seat-name">郑小强</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">马</div>
+                            <div class="seat-name">马子扬</div>
+                        </div>
+                        <div class="seat-item">
+                            <div class="seat-avatar">程</div>
+                            <div class="seat-name">程浩月</div>
+                        </div>
+                        <div class="seat-item empty">
+                            <span>+</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="seat-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot occupied"></div>
+                        <span>已安排</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot empty"></div>
+                        <span>空位</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: 点评指标 -->
+        <div class="tab-content" id="tab-2">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">点评指标管理</span>
+                    <div class="add-btn">+ 新增指标</div>
+                </div>
+
+                <!-- 加分指标 -->
+                <div class="indicator-category">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon green">👍</div>
+                            <span>加分指标</span>
+                        </div>
+                        <span class="category-expand">▼</span>
+                    </div>
+                    <div class="indicator-list">
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">📚</span>
+                                <span class="indicator-name">认真听讲</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge positive">+2分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">✋</span>
+                                <span class="indicator-name">积极发言</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge positive">+2分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">📝</span>
+                                <span class="indicator-name">作业优秀</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge positive">+3分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">🤝</span>
+                                <span class="indicator-name">乐于助人</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge positive">+2分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 扣分指标 -->
+                <div class="indicator-category">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon red">👎</div>
+                            <span>扣分指标</span>
+                        </div>
+                        <span class="category-expand">▼</span>
+                    </div>
+                    <div class="indicator-list">
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">😴</span>
+                                <span class="indicator-name">上课走神</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge negative">-1分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">🗣️</span>
+                                <span class="indicator-name">课堂讲话</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge negative">-1分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">📋</span>
+                                <span class="indicator-name">作业未交</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge negative">-2分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="indicator-item">
+                            <div class="indicator-info">
+                                <span class="indicator-icon">😤</span>
+                                <span class="indicator-name">打架</span>
+                            </div>
+                            <div class="indicator-score">
+                                <span class="score-badge negative">-5分</span>
+                                <div class="indicator-actions">
+                                    <span class="indicator-action edit">编辑</span>
+                                    <span class="indicator-action delete">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(index) {
+            // 更新 tab 状态
+            document.querySelectorAll('.tab-item').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+
+            // 更新内容显示
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+    </script>
+</body>
+</html>

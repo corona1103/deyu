@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440, height=900">
+    <title>北大附小AI德育系统 - 班级管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #8B0000, #A52A2A);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .sidebar-nav {
+            padding: 20px 15px;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            color: #999;
+            padding: 0 10px;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .nav-item:hover {
+            background: #F5F5F5;
+        }
+
+        .nav-item.active {
+            background: #FFF5F5;
+            color: #8B0000;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        .nav-text {
+            font-size: 14px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        /* 顶部导航 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8B0000, #A52A2A);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #E0E0E0;
+        }
+
+        /* Tab 导航 */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+            width: fit-content;
+        }
+
+        .tab-item {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            background: #8B0000;
+            color: white;
+        }
+
+        /* 表格卡片 */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #F5F5F5;
+            border-radius: 10px;
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+
+        /* 表格 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table th {
+            font-size: 13px;
+            font-weight: 500;
+            color: #999;
+            background: #F8F9FA;
+        }
+
+        .table th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .table th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .table td {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .table tr:hover {
+            background: #F8F9FA;
+        }
+
+        .class-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .class-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #E8F4FD, #D1E9FF);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .class-name {
+            font-weight: bold;
+        }
+
+        .class-desc {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .teacher-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .teacher-avatar {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .status-badge.inactive {
+            background: #F5F5F5;
+            color: #999;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .action-btn.edit {
+            background: #E8F4FD;
+            color: #4A90D9;
+        }
+
+        .action-btn.delete {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .pagination-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .pagination-btn.active {
+            background: #8B0000;
+            color: white;
+            border-color: #8B0000;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="logo-icon">北大</div>
+                <span class="logo-text">德育管理后台</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">主菜单</div>
+                <a href="16-网页-首页.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">仪表盘</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">班级管理</span>
+                </a>
+                <a href="18-网页-行为指标页.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">行为指标</span>
+                </a>
+                <a href="19-网页-预警管理页.html" class="nav-item">
+                    <span class="nav-icon">⚠️</span>
+                    <span class="nav-text">预警管理</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 顶部导航 -->
+        <div class="top-bar">
+            <h1 class="page-title">班级管理</h1>
+            <div class="top-actions">
+                <button class="btn btn-secondary">📤 导出数据</button>
+                <button class="btn btn-primary">+ 添加班级</button>
+            </div>
+        </div>
+
+        <!-- Tab 导航 -->
+        <div class="tab-nav">
+            <div class="tab-item active">班级列表</div>
+            <div class="tab-item">分组管理</div>
+            <div class="tab-item">教师管理</div>
+            <div class="tab-item">学生管理</div>
+        </div>
+
+        <!-- 表格卡片 -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">全部班级 (36)</span>
+                <div class="search-filter">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" class="search-input" placeholder="搜索班级名称...">
+                    </div>
+                    <select class="filter-select">
+                        <option>全部年级</option>
+                        <option>一年级</option>
+                        <option>二年级</option>
+                        <option>三年级</option>
+                        <option>四年级</option>
+                        <option>五年级</option>
+                        <option>六年级</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>班级</th>
+                        <th>班主任</th>
+                        <th>学生人数</th>
+                        <th>分组数</th>
+                        <th>平均德育分</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="class-info">
+                                <div class="class-icon">🏫</div>
+                                <div>
+                                    <div class="class-name">三年级1班</div>
+                                    <div class="class-desc">试点班级</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="teacher-name">
+                                <div class="teacher-avatar">张</div>
+                                <span>张老师</span>
+                            </div>
+                        </td>
+                        <td>42</td>
+                        <td>6</td>
+                        <td>87.5</td>
+                        <td><span class="status-badge active">已启用</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn edit">编辑</button>
+                                <button class="action-btn delete">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="class-info">
+                                <div class="class-icon">🏫</div>
+                                <div>
+                                    <div class="class-name">三年级2班</div>
+                                    <div class="class-desc">-</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="teacher-name">
+                                <div class="teacher-avatar">李</div>
+                                <span>李老师</span>
+                            </div>
+                        </td>
+                        <td>40</td>
+                        <td>5</td>
+                        <td>85.2</td>
+                        <td><span class="status-badge active">已启用</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn edit">编辑</button>
+                                <button class="action-btn delete">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="class-info">
+                                <div class="class-icon">🏫</div>
+                                <div>
+                                    <div class="class-name">三年级3班</div>
+                                    <div class="class-desc">-</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="teacher-name">
+                                <div class="teacher-avatar">王</div>
+                                <span>王老师</span>
+                            </div>
+                        </td>
+                        <td>38</td>
+                        <td>5</td>
+                        <td>88.1</td>
+                        <td><span class="status-badge active">已启用</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn edit">编辑</button>
+                                <button class="action-btn delete">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="class-info">
+                                <div class="class-icon">🏫</div>
+                                <div>
+                                    <div class="class-name">三年级4班</div>
+                                    <div class="class-desc">-</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="teacher-name">
+                                <div class="teacher-avatar">陈</div>
+                                <span>陈老师</span>
+                            </div>
+                        </td>
+                        <td>41</td>
+                        <td>6</td>
+                        <td>86.7</td>
+                        <td><span class="status-badge inactive">未启用</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn edit">编辑</button>
+                                <button class="action-btn delete">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="class-info">
+                                <div class="class-icon">🏫</div>
+                                <div>
+                                    <div class="class-name">四年级1班</div>
+                                    <div class="class-desc">-</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="teacher-name">
+                                <div class="teacher-avatar">赵</div>
+                                <span>赵老师</span>
+                            </div>
+                        </td>
+                        <td>39</td>
+                        <td>5</td>
+                        <td>89.3</td>
+                        <td><span class="status-badge inactive">未启用</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn edit">编辑</button>
+                                <button class="action-btn delete">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <div class="pagination-info">显示 1-5 共 36 条</div>
+                <div class="pagination-btns">
+                    <button class="pagination-btn">‹</button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn">...</button>
+                    <button class="pagination-btn">8</button>
+                    <button class="pagination-btn">›</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
