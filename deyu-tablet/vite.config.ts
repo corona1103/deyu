@@ -4,6 +4,7 @@ import UnoCSS from 'unocss/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
+  base: '/deyu/deyu-tablet/',
   plugins: [
     vue(),
     UnoCSS()
@@ -12,7 +13,8 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src'),
       '@shared': resolve(__dirname, '../packages/shared')
-    }
+    },
+    dedupe: ['vue', 'socket.io-client']
   },
   css: {
     preprocessorOptions: {
