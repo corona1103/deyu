@@ -39,6 +39,14 @@ const router = createRouter({
   routes
 })
 
+// GitHub Pages SPA fallback: restore route from query param after 404 redirect
+const searchParams = new URLSearchParams(window.location.search)
+const redirectRoute = searchParams.get('route')
+if (redirectRoute) {
+  // Clean the URL and navigate to the intended route
+  window.history.replaceState(null, '', '/deyu/deyu-bigscreen' + redirectRoute + window.location.hash)
+}
+
 // 路由守卫
 router.beforeEach((to, _from, next) => {
   // 设置页面标题
