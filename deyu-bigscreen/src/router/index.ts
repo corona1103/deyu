@@ -15,6 +15,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '登录' }
   },
   {
+    path: '/home',
+    name: 'home',
+    component: () => import('@/views/HomePage.vue'),
+    meta: { title: '首页', requiresAuth: true }
+  },
+  {
     path: '/review',
     name: 'review',
     component: () => import('@/views/ReviewPage.vue'),
