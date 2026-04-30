@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import landingBg from '@/assets/images/landing-bg.png'
 
 const router = useRouter()
 
@@ -10,20 +11,16 @@ function goToLogin() {
 
 <template>
   <div class="display-page">
-    <div class="content">
-      <div class="logo">
-        <div class="logo-inner">北大</div>
-      </div>
-      <h1 class="title">北大附小AI德育系统</h1>
-      <p class="subtitle">智慧德育 启迪未来</p>
-      <button class="enter-btn" @click="goToLogin">
-        点击进入系统
-      </button>
-    </div>
-
-    <footer class="footer">
-      © 2024 北京大学附属小学 | 版权所有
-    </footer>
+    <img :src="landingBg" alt="AI德育系统" class="bg-image" />
+    <button class="enter-btn" @click="goToLogin">
+      <span class="enter-text">点击进入</span>
+      <span class="enter-arrow">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="14" fill="rgba(255,255,255,0.3)"/>
+          <path d="M12 9l5 5-5 5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </button>
   </div>
 </template>
 
@@ -31,80 +28,55 @@ function goToLogin() {
 .display-page {
   width: 1920px;
   height: 1080px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   position: relative;
+  overflow: hidden;
 }
 
-.content {
-  text-align: center;
-}
-
-.logo {
-  width: 180px;
-  height: 180px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 50px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.logo-inner {
-  width: 150px;
-  height: 150px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 42px;
-  font-weight: bold;
-}
-
-.title {
-  color: white;
-  font-size: 72px;
-  font-weight: bold;
-  letter-spacing: 8px;
-  margin-bottom: 20px;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 32px;
-  letter-spacing: 6px;
-  margin-bottom: 60px;
+.bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .enter-btn {
-  padding: 25px 80px;
-  background: white;
-  color: var(--color-primary);
-  border-radius: 50px;
-  font-size: 28px;
-  font-weight: bold;
-  letter-spacing: 4px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  transition: var(--transition-normal);
+  position: absolute;
+  right: 345px;
+  bottom: 298px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 44px 20px 52px;
+  background: #9D0808;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(157, 8, 8, 0.4);
+  z-index: 10;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(157, 8, 8, 0.5);
+    background: #B00A0A;
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 }
 
-.footer {
-  position: absolute;
-  bottom: 30px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
+.enter-text {
+  white-space: nowrap;
+}
+
+.enter-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

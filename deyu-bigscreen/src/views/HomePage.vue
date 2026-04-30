@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import schoolBadge from '@/assets/images/school-badge.png'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -33,10 +34,8 @@ function goToReview() {
     <!-- 顶部区域 -->
     <header class="header">
       <div class="header-left">
-        <div class="school-badge">
-          <div class="school-badge-inner">北大</div>
-        </div>
-        <h1 class="header-title">北大附小AI德育系统</h1>
+        <img :src="schoolBadge" alt="校徽" class="school-badge" />
+        <h1 class="header-title">北京大学附属小学</h1>
       </div>
       <div class="header-right">
         <div class="class-selector">
@@ -119,24 +118,7 @@ function goToReview() {
 .school-badge {
   width: 70px;
   height: 70px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.school-badge-inner {
-  width: 58px;
-  height: 58px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
+  object-fit: contain;
 }
 
 .header-title {

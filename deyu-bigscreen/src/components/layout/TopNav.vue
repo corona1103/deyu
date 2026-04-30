@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import schoolBadge from '@/assets/images/school-badge.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -12,6 +13,7 @@ const teacher = computed(() => userStore.teacher)
 const showUserMenu = ref(false)
 
 const navItems = [
+  { name: 'display', label: '首页', path: '/' },
   { name: 'review', label: '点评', path: '/review' },
   { name: 'ranking', label: '排行榜', path: '/ranking' },
   { name: 'homework', label: '交作业', path: '/homework' }
@@ -21,19 +23,13 @@ const navItems = [
 const teacherDisplayName = computed(() => {
   if (!teacher.value?.name) return '未登录'
   const name = teacher.value.name
-  // 如果已经包含"老师"，直接返回
   if (name.includes('老师')) return name
-  // 否则取姓+老师
   return name[0] + '老师'
 })
 
 function onClassChange(event: Event) {
   const classId = (event.target as HTMLSelectElement).value
   userStore.setCurrentClass(classId)
-}
-
-function goHome() {
-  router.push('/home')
 }
 
 function toggleUserMenu() {
@@ -55,17 +51,10 @@ function closeUserMenu() {
   <nav class="top-nav">
     <div class="nav-left">
       <!-- 校徽 -->
-      <div class="school-badge">
-        <div class="badge-inner">北大</div>
-      </div>
-      <!-- 班级选择器 -->
-      <div class="class-selector">
-        <select :value="userStore.currentClassId" @change="onClassChange">
-          <option v-for="cls in classes" :key="cls.id" :value="cls.id">
-            {{ cls.name }}
-          </option>
-        </select>
-        <span class="dropdown-icon">▼</span>
+      <img :src="schoolBadge" alt="校徽" class="school-badge" />
+      <div class="school-info">
+        <div class="school-name">北京大学附属小学</div>
+        <div class="school-sub">九章爱学德育系统</div>
       </div>
     </div>
 
@@ -82,15 +71,20 @@ function closeUserMenu() {
     </div>
 
     <div class="nav-right">
-      <button class="nav-btn" @click="goHome">
-        🏠 首页
-      </button>
+      <!-- 班级选择器 -->
+      <div class="class-selector">
+        <select :value="userStore.currentClassId" @change="onClassChange">
+          <option v-for="cls in classes" :key="cls.id" :value="cls.id">
+            {{ cls.name }}
+          </option>
+        </select>
+        <span class="dropdown-icon">▼</span>
+      </div>
       <!-- 用户信息 + 下拉菜单 -->
       <div class="user-dropdown" @click="toggleUserMenu">
         <div class="user-info">
           <div class="user-avatar">{{ teacher?.name?.[0] || '?' }}</div>
           <span class="user-name">{{ teacherDisplayName }}</span>
-          <span class="dropdown-arrow">▼</span>
         </div>
         <!-- 下拉菜单 -->
         <div v-if="showUserMenu" class="dropdown-menu" @click.stop>
@@ -107,132 +101,110 @@ function closeUserMenu() {
 </template>
 
 <style scoped lang="scss">
-// 学校品牌色
-$school-primary: #8B0000;
+$school-primary: #9D0808;
 $school-secondary: #A52A2A;
 
 .top-nav {
   height: 70px;
-  background: linear-gradient(90deg, white 0%, #FFF8F8 50%, white 100%);
+  background: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  box-shadow: var(--shadow-sm);
-  border-bottom: 2px solid rgba($school-primary, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 50;
 }
 
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
 }
 
-// 校徽样式
 .school-badge {
-  width: 50px;
-  height: 50px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba($school-primary, 0.2);
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
 }
 
-.badge-inner {
-  width: 42px;
-  height: 42px;
-  background: linear-gradient(135deg, $school-primary, $school-secondary);
-  border-radius: 50%;
+.school-info {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 14px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.school-name {
+  font-size: 20px;
   font-weight: bold;
+  color: #9D0808;
   letter-spacing: 1px;
 }
 
-.class-selector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: var(--color-bg-light);
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba($school-primary, 0.1);
-
-  select {
-    border: none;
-    background: transparent;
-    font-size: 18px;
-    color: var(--color-text-primary);
-    cursor: pointer;
-    outline: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    min-width: 120px;
-  }
-
-  .dropdown-icon {
-    font-size: 12px;
-    color: $school-primary;
-  }
+.school-sub {
+  font-size: 12px;
+  color: #999;
+  letter-spacing: 0.5px;
 }
 
 .nav-center {
   display: flex;
-  gap: 20px;
+  gap: 12px;
 }
 
 .nav-item {
-  font-size: 20px;
-  color: var(--color-text-secondary);
-  padding: 12px 28px;
-  border-radius: var(--radius-xl);
-  transition: var(--transition-normal);
+  font-size: 18px;
+  color: #666;
+  padding: 10px 28px;
+  border-radius: 25px;
+  transition: all 0.3s ease;
   text-decoration: none;
+  font-weight: 500;
 
   &:hover {
-    background: rgba($school-primary, 0.05);
     color: $school-primary;
   }
 
   &.active {
     color: $school-primary;
     font-weight: bold;
-    background: rgba($school-primary, 0.1);
   }
 }
 
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 25px;
+  gap: 20px;
 }
 
-.nav-btn {
+.class-selector {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 18px;
-  border-radius: var(--radius-xl);
-  font-size: 16px;
-  color: var(--color-text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: var(--transition-normal);
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border-radius: 25px;
+  border: 1px solid #eee;
 
-  &:hover {
-    background: rgba($school-primary, 0.05);
-    color: $school-primary;
+  select {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    min-width: 100px;
+  }
+
+  .dropdown-icon {
+    font-size: 10px;
+    color: #999;
   }
 }
 
-// 用户下拉容器
 .user-dropdown {
   position: relative;
   cursor: pointer;
@@ -243,8 +215,8 @@ $school-secondary: #A52A2A;
   align-items: center;
   gap: 10px;
   padding: 6px 12px;
-  border-radius: var(--radius-xl);
-  transition: var(--transition-normal);
+  border-radius: 25px;
+  transition: all 0.3s ease;
 
   &:hover {
     background: rgba($school-primary, 0.05);
@@ -252,31 +224,30 @@ $school-secondary: #A52A2A;
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, $school-primary, $school-secondary);
-  border-radius: var(--radius-full);
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #f0a0a0, #e08080);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 15px;
   color: white;
   font-weight: bold;
 }
 
 .user-name {
   font-size: 16px;
-  color: var(--color-text-primary);
+  color: #333;
 }
 
-// 下拉菜单
 .dropdown-menu {
   position: absolute;
   top: 100%;
   right: 0;
   margin-top: 8px;
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   min-width: 140px;
@@ -289,11 +260,11 @@ $school-secondary: #A52A2A;
   gap: 10px;
   padding: 14px 20px;
   font-size: 16px;
-  color: var(--color-text-secondary);
-  transition: var(--transition-normal);
+  color: #666;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: #F5F5F5;
+    background: #f5f5f5;
   }
 
   &.logout {
@@ -309,13 +280,6 @@ $school-secondary: #A52A2A;
   font-size: 18px;
 }
 
-.dropdown-arrow {
-  font-size: 10px;
-  color: var(--color-text-muted);
-  margin-left: 4px;
-}
-
-// 遮罩层
 .dropdown-overlay {
   position: fixed;
   top: 0;

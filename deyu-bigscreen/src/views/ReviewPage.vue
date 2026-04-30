@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import TopNav from '@/components/layout/TopNav.vue'
+import coinIcon from '@/assets/images/coin.svg'
 
 // 数据 - 6个小组，每组约10人
 const groups = ref([
@@ -96,46 +97,123 @@ const groups = ref([
   }
 ])
 
-// 行为指标维度
+// 行为指标维度（来自行为指标规则CSV）
 const dimensions = [
   {
     name: '快乐',
+    subtitle: '身心健康',
     icon: '😊',
     indicators: [
-      { label: '情绪稳定', type: 'positive', points: 2 },
-      { label: '积极运动', type: 'positive', points: 2 },
-      { label: '保护自己', type: 'positive', points: 2 },
-      { label: '需要关注', type: 'negative', points: -1 }
+      { label: '保护自己，不做有危险的举动', type: 'positive', points: 1 },
+      { label: '能判断他人的危险行为，并主动保持安全距离', type: 'positive', points: 1 },
+      { label: '能合理判断自己的情绪状态', type: 'positive', points: 1 },
+      { label: '不开心时不随便发泄负面情绪', type: 'positive', points: 1 },
+      { label: '不挑食，按需打餐，尽量吃完所有食物', type: 'positive', points: 1 },
+      { label: '每天在校至少喝 500ml 水', type: 'positive', points: 1 },
+      { label: '认真参与眼保健操、课间操，动作标准规范', type: 'positive', points: 1 },
+      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
+      { label: '每天做一件让自己开心的事，经常面带笑容', type: 'positive', points: 2 },
+      { label: '身体不舒服或情绪不好时，能主动向老师/家长求助', type: 'positive', points: 2 },
+      { label: '大课间、小课间主动到室外跑跳、运动', type: 'positive', points: 2 },
+      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
+      { label: '长期坚持一项自己喜欢的体育运动，养成运动习惯', type: 'positive', points: 3, custom: true },
+      { label: '体育运动长期坚持满 1 个月', type: 'positive', points: 5, custom: true },
+      { label: '有自己特别感兴趣的事，长期坚持并从中获得快乐', type: 'positive', points: 3, custom: true },
+      { label: '兴趣爱好长期坚持满 1 个月', type: 'positive', points: 5, custom: true },
+      { label: '做出危险举动，未做好自我保护', type: 'negative', points: -2 },
+      { label: '情节严重的危险举动/自我保护缺失行为', type: 'negative', points: -5 },
+      { label: '主动靠近他人危险行为，未做好安全规避', type: 'negative', points: -2 },
+      { label: '情节严重的违规靠近他人危险行为', type: 'negative', points: -5 },
+      { label: '不开心时随意发泄情绪，影响他人', type: 'negative', points: -2 },
+      { label: '情节严重的情绪发泄、攻击他人行为', type: 'negative', points: -5 },
+      { label: '挑食、随意浪费食物', type: 'negative', points: -1 },
+      { label: '在校每日饮水不足 500ml', type: 'negative', points: -1 },
+      { label: '不认真参与校内 2 操，动作敷衍不标准', type: 'negative', points: -1 },
     ]
   },
   {
     name: '进取',
+    subtitle: '创新素养',
     icon: '🚀',
     indicators: [
-      { label: '按时作业', type: 'positive', points: 2 },
-      { label: '主动提问', type: 'positive', points: 2 },
-      { label: '坚持不懈', type: 'positive', points: 2 },
-      { label: '需要鼓励', type: 'negative', points: -1 }
+      { label: '按时完成所有作业', type: 'positive', points: 1 },
+      { label: '上课遵守纪律，不影响其他同学学习', type: 'positive', points: 1 },
+      { label: '课堂上主动举手回答问题，清晰表达自己的想法', type: 'positive', points: 1 },
+      { label: '有清晰的目标意识，能给自己制定合理的短期计划', type: 'positive', points: 1 },
+      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
+      { label: '主动向老师提问，学会对知识点提出质疑', type: 'positive', points: 2 },
+      { label: '面对有难度的任务不轻言放弃，愿意主动尝试', type: 'positive', points: 2 },
+      { label: '能按轻重缓急给事情分类，科学分配自己的时间', type: 'positive', points: 2 },
+      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
+      { label: '主动从多个角度思考和解决问题', type: 'positive', points: 3 },
+      { label: '发现学校/社区/社会可优化的地方，尝试用行动推动改变', type: 'positive', points: 3, custom: true },
+      { label: '行为优化落地成果显著', type: 'positive', points: 5, custom: true },
+      { label: '了解人工智能等最新科技发明，在生活/学习中寻找技术应用场景', type: 'positive', points: 3, custom: true },
+      { label: '科技应用落地成果显著', type: 'positive', points: 5, custom: true },
+      { label: '未按时完成作业，拖欠作业', type: 'negative', points: -2 },
+      { label: '情节严重的作业拖欠/拒不完成行为', type: 'negative', points: -5 },
+      { label: '上课扰乱课堂秩序，影响他人学习', type: 'negative', points: -2 },
+      { label: '情节严重的课堂扰乱行为', type: 'negative', points: -5 },
+      { label: '课堂上不主动发言，拒绝表达自己的想法', type: 'negative', points: -1 },
+      { label: '无目标意识，不会制定短期学习/生活计划', type: 'negative', points: -1 },
     ]
   },
   {
     name: '儒雅',
+    subtitle: '儒雅品格',
     icon: '📚',
     indicators: [
-      { label: '礼貌待人', type: 'positive', points: 2 },
-      { label: '安静倾听', type: 'positive', points: 2 },
-      { label: '温和沟通', type: 'positive', points: 2 },
-      { label: '待改进', type: 'negative', points: -1 }
+      { label: '不用言语、行为故意伤害他人', type: 'positive', points: 1 },
+      { label: '不随意拿取别人物品、不破坏学校及公共财物', type: 'positive', points: 1 },
+      { label: '衣着得体整洁，个人物品摆放有序', type: 'positive', points: 1 },
+      { label: '见到师长主动问好，日常常用礼貌用语', type: 'positive', points: 1 },
+      { label: '他人说话时能安静倾听，不随意打断', type: 'positive', points: 1 },
+      { label: '在学校楼道和室内场所轻步慢走、不追逐打闹', type: 'positive', points: 1 },
+      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
+      { label: '与同学有小摩擦时能温和沟通，积极向老师寻求帮助', type: 'positive', points: 2 },
+      { label: '同学遇到困难或情绪低落时，能主动关心并提供帮助', type: 'positive', points: 2 },
+      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
+      { label: '保持稳定的情绪状态，不会轻易被外界小事影响', type: 'positive', points: 3 },
+      { label: '情绪稳定表现持续满 1 个月', type: 'positive', points: 5, custom: true },
+      { label: '保持每天安静阅读的良好习惯', type: 'positive', points: 3 },
+      { label: '每日阅读习惯持续满 1 个月', type: 'positive', points: 5, custom: true },
+      { label: '懂得欣赏多样性，能倾听并包容不一样的想法', type: 'positive', points: 3 },
+      { label: '包容差异、尊重他人表现持续满 1 个月', type: 'positive', points: 5, custom: true },
+      { label: '用言语、行为故意伤害同学/他人', type: 'negative', points: -2 },
+      { label: '情节严重的校园欺凌/伤害他人行为', type: 'negative', points: -5 },
+      { label: '随意拿取他人物品、破坏公物/校园设施', type: 'negative', points: -2 },
+      { label: '情节严重的盗窃/恶意破坏公物行为', type: 'negative', points: -5 },
+      { label: '衣着不整洁、个人物品摆放杂乱无章', type: 'negative', points: -1 },
+      { label: '见到师长不问好，日常不使用礼貌用语', type: 'negative', points: -1 },
+      { label: '随意打断他人说话，不尊重发言者', type: 'negative', points: -1 },
+      { label: '校内楼道、室内场所追逐打闹、不遵守公共秩序', type: 'negative', points: -1 },
     ]
   },
   {
     name: '大气',
+    subtitle: '责任担当',
     icon: '💪',
     indicators: [
-      { label: '关心集体', type: 'positive', points: 2 },
-      { label: '主动服务', type: 'positive', points: 2 },
-      { label: '责任担当', type: 'positive', points: 2 },
-      { label: '需要引导', type: 'negative', points: -1 }
+      { label: '升旗时主动行礼、大声唱国歌、全程肃立', type: 'positive', points: 1 },
+      { label: '不损坏国旗、队旗，规范佩戴、爱护红领巾', type: 'positive', points: 1 },
+      { label: '有集体荣誉感，积极参加集体活动，认真完成值日工作', type: 'positive', points: 1 },
+      { label: '热爱学校，爱护校园的一草一木，不乱扔垃圾', type: 'positive', points: 1 },
+      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
+      { label: '遇事对人不斤斤计较，乐于分享自己的物品/知识', type: 'positive', points: 2 },
+      { label: '主动为集体服务，为班级、学校做力所能及的事', type: 'positive', points: 2 },
+      { label: '了解家乡的非遗、传统节日习俗或历史人物故事，并主动分享', type: 'positive', points: 2 },
+      { label: '主动关心社会时事，对祖国发展与进步感到自豪', type: 'positive', points: 2 },
+      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
+      { label: '积极参与跨区域、跨国家的交流与学习，主动拓展视野', type: 'positive', points: 3, custom: true },
+      { label: '跨文化交流学习成果显著', type: 'positive', points: 5, custom: true },
+      { label: '积极传播本土先进文化，不盲目推崇他国文化', type: 'positive', points: 3, custom: true },
+      { label: '本土文化传播成果显著', type: 'positive', points: 5, custom: true },
+      { label: '升旗时不遵守礼仪，不行礼、不唱国歌、随意走动/说话', type: 'negative', points: -2 },
+      { label: '情节严重的升旗礼仪违规行为', type: 'negative', points: -5 },
+      { label: '损坏国旗、队旗、红领巾等标志，不规范佩戴红领巾', type: 'negative', points: -2 },
+      { label: '情节严重的国旗/队旗/红领巾损毁行为', type: 'negative', points: -5 },
+      { label: '无集体荣誉感，拒绝参与集体活动、不认真完成值日', type: 'negative', points: -1 },
+      { label: '破坏校园环境、乱扔垃圾、损坏校园花草树木', type: 'negative', points: -1 },
     ]
   }
 ]
@@ -158,6 +236,9 @@ const showGroupEditModal = ref(false)
 const editingGroup = ref<{ id: number; name: string; icon: string } | null>(null)
 const editGroupName = ref('')
 const editGroupIcon = ref('')
+
+// 点评弹窗维度Tab
+const activeDimTab = ref(0)
 
 // 加分动效状态
 const scoreAnimations = ref<Map<string, { points: number; show: boolean }>>(new Map())
@@ -278,6 +359,7 @@ function confirmMultiReview() {
 function openReviewModal(students: string[]) {
   selectedStudents.value = students
   selectedIndicators.value = []
+  activeDimTab.value = 0
   showReviewModal.value = true
 }
 
@@ -448,36 +530,28 @@ function getSeatStudent(row: number, col: number) {
       <div class="view-tabs">
         <button
           class="view-tab"
-          :class="{ active: viewMode === 'group' }"
-          @click="switchView('group')"
-        >
-          🏠 小组
-        </button>
-        <button
-          class="view-tab"
           :class="{ active: viewMode === 'all' }"
           @click="switchView('all')"
-        >
-          👥 全部学生
-        </button>
+        >全部</button>
+        <button
+          class="view-tab"
+          :class="{ active: viewMode === 'group' }"
+          @click="switchView('group')"
+        >小组</button>
         <button
           class="view-tab"
           :class="{ active: viewMode === 'seat' }"
           @click="switchView('seat')"
-        >
-          🪑 座位表
-        </button>
+        >座位表</button>
       </div>
       <div class="time-filter">
         <button
-          v-for="period in ['day', 'week', 'month', 'semester']"
-          :key="period"
+          v-for="p in [{key:'day',label:'日榜'},{key:'week',label:'周榜'},{key:'month',label:'月榜'},{key:'semester',label:'学期榜'}]"
+          :key="p.key"
           class="time-btn"
-          :class="{ active: timePeriod === period }"
-          @click="switchTime(period)"
-        >
-          {{ getTimePeriodLabel(period) }}
-        </button>
+          :class="{ active: timePeriod === p.key }"
+          @click="switchTime(p.key)"
+        >{{ p.label }}</button>
       </div>
     </div>
 
@@ -487,24 +561,17 @@ function getSeatStudent(row: number, col: number) {
       <div v-if="viewMode === 'group'" class="groups-grid">
         <div v-for="group in groups" :key="group.id" class="group-card">
           <div class="group-header">
-            <div class="group-left">
-              <div class="group-icon" @click.stop="openGroupEditModal(group)" title="点击修改图标">{{ group.icon }}</div>
-              <span class="group-name" @click.stop="openGroupEditModal(group)" title="点击修改名称">{{ group.name }}</span>
-            </div>
+            <span class="group-icon">{{ group.icon }}</span>
+            <span class="group-name" @click.stop="openGroupEditModal(group)">{{ group.name }}（{{ group.students.length }}人）</span>
+            <span class="group-score">{{ group.totalScore }} <img :src="coinIcon" class="coin" alt="coin" /></span>
             <button
               v-if="multiSelectMode"
               class="group-select-btn"
               :class="{ selected: isGroupSelected(group.id) }"
               @click="selectGroup(group.id)"
-            >
-              {{ isGroupSelected(group.id) ? '取消本组' : '全选本组' }}
-            </button>
-            <div class="group-score">
-              <span class="score-icon">🏆</span>
-              {{ group.totalScore >= 1000 ? (group.totalScore / 1000).toFixed(2) + 'k' : group.totalScore }}
-            </div>
+            >{{ isGroupSelected(group.id) ? '取消' : '全选' }}</button>
           </div>
-          <div class="students-list">
+          <div class="students-grid">
             <div
               v-for="student in group.students"
               :key="student.id"
@@ -515,19 +582,15 @@ function getSeatStudent(row: number, col: number) {
               }"
               @click="handleStudentClick(student.name)"
             >
-              <div v-if="multiSelectMode" class="student-checkbox">✓</div>
               <div class="student-name">{{ student.name }}</div>
               <div class="student-score">
-                <span class="score-star">⭐</span>
                 <span class="score-value">{{ student.score }}</span>
+                <img :src="coinIcon" class="coin-s" alt="coin" />
               </div>
-              <!-- 加分动效 -->
               <div
                 v-if="getScoreAnimation(student.name)?.show"
                 class="score-animation"
-              >
-                +{{ getScoreAnimation(student.name)?.points }}
-              </div>
+              >+{{ getScoreAnimation(student.name)?.points }}</div>
             </div>
           </div>
         </div>
@@ -536,19 +599,28 @@ function getSeatStudent(row: number, col: number) {
       <!-- 全部学生视图 -->
       <div v-if="viewMode === 'all'" class="all-students-view">
         <div class="all-students-header">
-          <span class="all-students-title">👥 全班学生（共 {{ totalStudentCount }} 人）</span>
+          <span class="all-students-title">全班学生（共 {{ totalStudentCount }} 人）</span>
         </div>
         <div class="all-students-grid">
           <div
             v-for="student in allStudents"
             :key="student.name"
-            class="mini-card"
-            :class="{ selected: isStudentSelected(student.name) }"
+            class="student-card"
+            :class="{
+              selected: isStudentSelected(student.name),
+              'has-animation': getScoreAnimation(student.name)?.show
+            }"
             @click="handleStudentClick(student.name)"
           >
-            <div v-if="multiSelectMode" class="mini-checkbox">✓</div>
-            <div class="mini-name">{{ student.name }}</div>
-            <div class="mini-score">{{ student.score }}</div>
+            <div class="student-name">{{ student.name }}</div>
+            <div class="student-score">
+              <span class="score-value">{{ student.score }}</span>
+              <img :src="coinIcon" class="coin-s" alt="coin" />
+            </div>
+            <div
+              v-if="getScoreAnimation(student.name)?.show"
+              class="score-animation"
+            >+{{ getScoreAnimation(student.name)?.points }}</div>
           </div>
         </div>
       </div>
@@ -593,9 +665,11 @@ function getSeatStudent(row: number, col: number) {
                   @click="getSeatStudent(row - 1, col - 1) && handleStudentClick(getSeatStudent(row - 1, col - 1)!.name)"
                 >
                   <template v-if="getSeatStudent(row - 1, col - 1)">
-                    <div v-if="multiSelectMode" class="seat-checkbox">✓</div>
                     <div class="seat-name">{{ getSeatStudent(row - 1, col - 1)!.name }}</div>
-                    <div class="seat-score">{{ getSeatStudent(row - 1, col - 1)!.score }}</div>
+                    <div class="seat-score">
+                      <span>{{ getSeatStudent(row - 1, col - 1)!.score }}</span>
+                      <img :src="coinIcon" class="coin-xs" alt="coin" />
+                    </div>
                   </template>
                 </div>
               </div>
@@ -612,9 +686,11 @@ function getSeatStudent(row: number, col: number) {
                   @click="getSeatStudent(row - 1, col + 1) && handleStudentClick(getSeatStudent(row - 1, col + 1)!.name)"
                 >
                   <template v-if="getSeatStudent(row - 1, col + 1)">
-                    <div v-if="multiSelectMode" class="seat-checkbox">✓</div>
                     <div class="seat-name">{{ getSeatStudent(row - 1, col + 1)!.name }}</div>
-                    <div class="seat-score">{{ getSeatStudent(row - 1, col + 1)!.score }}</div>
+                    <div class="seat-score">
+                      <span>{{ getSeatStudent(row - 1, col + 1)!.score }}</span>
+                      <img :src="coinIcon" class="coin-xs" alt="coin" />
+                    </div>
                   </template>
                 </div>
               </div>
@@ -631,9 +707,11 @@ function getSeatStudent(row: number, col: number) {
                   @click="getSeatStudent(row - 1, col + 3) && handleStudentClick(getSeatStudent(row - 1, col + 3)!.name)"
                 >
                   <template v-if="getSeatStudent(row - 1, col + 3)">
-                    <div v-if="multiSelectMode" class="seat-checkbox">✓</div>
                     <div class="seat-name">{{ getSeatStudent(row - 1, col + 3)!.name }}</div>
-                    <div class="seat-score">{{ getSeatStudent(row - 1, col + 3)!.score }}</div>
+                    <div class="seat-score">
+                      <span>{{ getSeatStudent(row - 1, col + 3)!.score }}</span>
+                      <img :src="coinIcon" class="coin-xs" alt="coin" />
+                    </div>
                   </template>
                 </div>
               </div>
@@ -645,24 +723,17 @@ function getSeatStudent(row: number, col: number) {
 
     <!-- 底部工具栏 - 普通模式 -->
     <footer v-if="!multiSelectMode" class="bottom-toolbar">
-      <button class="tool-btn primary" @click="enterMultiSelectMode">
-        <span class="tool-icon">👥</span>
-        <span>点评多人</span>
-      </button>
+      <button class="tool-btn primary" @click="enterMultiSelectMode">点评多人</button>
     </footer>
 
     <!-- 底部工具栏 - 多选模式 -->
     <footer v-else class="bottom-toolbar multi-select-bar">
-      <button class="select-btn" @click="selectAllStudents">
-        <span>📋</span> 全选
-      </button>
+      <button class="select-btn" @click="selectAllStudents">全选</button>
       <div class="selected-count">
         已选择 <strong>{{ selectedStudents.length }}</strong> 人
       </div>
       <button class="select-btn outline" @click="clearSelection">清空选择</button>
-      <button class="confirm-btn" @click="confirmMultiReview">
-        <span>✨</span> 确认点评
-      </button>
+      <button class="confirm-btn" @click="confirmMultiReview">确认点评</button>
       <button class="cancel-btn" @click="exitMultiSelectMode">取消</button>
     </footer>
 
@@ -670,32 +741,68 @@ function getSeatStudent(row: number, col: number) {
     <div v-if="showReviewModal" class="review-modal" @click="closeReviewModal">
       <div class="review-panel" @click.stop>
         <div class="review-panel-header">
-          <h3 class="review-panel-title">📝 学生点评</h3>
+          <h3 class="review-panel-title">学生点评</h3>
+          <div class="review-students-inline">
+            <span v-for="name in selectedStudents.slice(0, 5)" :key="name" class="review-student-tag">{{ name }}</span>
+            <span v-if="selectedStudents.length > 5" class="review-student-tag more">+{{ selectedStudents.length - 5 }}人</span>
+          </div>
           <button class="review-panel-close" @click="closeReviewModal">×</button>
         </div>
         <div class="review-panel-body">
-          <div class="review-students">
-            <span v-for="name in selectedStudents" :key="name" class="review-student-tag">
-              👤 {{ name }}
-            </span>
+          <!-- 维度Tab栏 -->
+          <div class="dim-tabs">
+            <button
+              v-for="(dim, idx) in dimensions"
+              :key="dim.name"
+              class="dim-tab"
+              :class="{ active: activeDimTab === idx }"
+              @click="activeDimTab = idx"
+            >
+              <span class="dim-tab-icon">{{ dim.icon }}</span>
+              <span class="dim-tab-name">{{ dim.name }}</span>
+              <span class="dim-tab-sub">{{ dim.subtitle }}</span>
+            </button>
           </div>
 
-          <div v-for="dim in dimensions" :key="dim.name" class="dimension-section">
-            <div class="dimension-title">{{ dim.icon }} {{ dim.name }}</div>
-            <div class="dimension-grid">
-              <button
-                v-for="ind in dim.indicators"
+          <!-- 指标列表 -->
+          <div class="indicator-list">
+            <!-- 加分项 -->
+            <div class="indicator-group-label positive-label">加分项</div>
+            <div class="indicator-grid">
+              <div
+                v-for="ind in [...dimensions[activeDimTab].indicators.filter(i => i.type === 'positive' && i.custom), ...dimensions[activeDimTab].indicators.filter(i => i.type === 'positive' && !i.custom)]"
                 :key="ind.label"
-                class="indicator-btn"
-                :class="[ind.type, { selected: isIndicatorSelected(ind.label) }]"
+                class="indicator-block positive"
+                :class="{ selected: isIndicatorSelected(ind.label) }"
                 @click="toggleIndicator(ind.label)"
               >
-                {{ ind.label }}
-              </button>
+                <span v-if="ind.custom" class="custom-tag">特色</span>
+                <div class="block-text">{{ ind.label }}</div>
+                <div class="block-score positive">+{{ ind.points }}</div>
+              </div>
+            </div>
+
+            <!-- 扣分项 -->
+            <div class="indicator-group-label negative-label">扣分项</div>
+            <div class="indicator-grid">
+              <div
+                v-for="ind in [...dimensions[activeDimTab].indicators.filter(i => i.type === 'negative' && i.custom), ...dimensions[activeDimTab].indicators.filter(i => i.type === 'negative' && !i.custom)]"
+                :key="ind.label"
+                class="indicator-block negative"
+                :class="{ selected: isIndicatorSelected(ind.label) }"
+                @click="toggleIndicator(ind.label)"
+              >
+                <span v-if="ind.custom" class="custom-tag">特色</span>
+                <div class="block-text">{{ ind.label }}</div>
+                <div class="block-score negative">{{ ind.points }}</div>
+              </div>
             </div>
           </div>
         </div>
         <div class="review-panel-footer">
+          <div class="footer-summary" v-if="selectedIndicators.length > 0">
+            已选 <strong>{{ selectedIndicators.length }}</strong> 项
+          </div>
           <button class="btn-cancel" @click="closeReviewModal">取消</button>
           <button class="btn-confirm" @click="submitReview">确认点评</button>
         </div>
@@ -759,311 +866,252 @@ function getSeatStudent(row: number, col: number) {
 </template>
 
 <style scoped lang="scss">
+$primary: #EE595B;
+$primary-bg: #FFDBDB;
+
 .review-page {
   width: 1920px;
   height: 1080px;
-  background: linear-gradient(180deg, #E8F4FD 0%, #F5F9FC 100%);
+  background: #FFF8F7;
   display: flex;
   flex-direction: column;
 }
 
 .sub-nav {
-  height: 80px;
-  background: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 50px;
-  border-bottom: 1px solid #eee;
+  padding: 16px 50px;
   flex-shrink: 0;
 }
 
 .view-tabs {
   display: flex;
-  gap: 12px;
+  gap: 36px;
 }
 
 .view-tab {
-  padding: 18px 40px;
-  border-radius: 30px;
-  font-size: 30px;
+  font-size: 22px;
   color: #666;
-  background: #f5f5f5;
+  background: none;
   border: none;
   cursor: pointer;
-  transition: all 0.3s;
+  padding: 8px 4px;
+  position: relative;
+  font-weight: 500;
+  transition: color 0.3s;
 
-  &:hover {
-    background: #E8F4FD;
-  }
+  &:hover { color: $primary; }
 
   &.active {
-    background: var(--color-secondary);
-    color: white;
+    color: $primary;
+    font-weight: bold;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 3px;
+      background: $primary;
+      border-radius: 2px;
+    }
   }
 }
 
 .time-filter {
   display: flex;
-  gap: 12px;
+  background: white;
+  border-radius: 30px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .time-btn {
-  padding: 16px 36px;
-  border-radius: 28px;
-  font-size: 27px;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 16px;
   color: #666;
-  background: #f5f5f5;
+  background: none;
   border: none;
   cursor: pointer;
   transition: all 0.3s;
+  font-weight: 500;
 
-  &:hover {
-    background: #E8F4FD;
-  }
+  &:hover { color: $primary; }
 
   &.active {
-    background: var(--color-secondary);
+    background: $primary;
     color: white;
+    font-weight: bold;
   }
 }
 
 .main-content {
   flex: 1;
-  padding: 30px 50px;
+  padding: 10px 50px 0;
   overflow-y: auto;
 
   &.multi-select-mode {
     .student-card, .mini-card, .seat-cell:not(.empty) {
       cursor: pointer;
-
-      .student-checkbox, .mini-checkbox, .seat-checkbox {
-        display: flex;
-      }
     }
   }
 }
 
-// 小组视图 - 自适应折行布局
+// 小组视图
 .groups-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  justify-content: flex-start;
 }
 
 .group-card {
   background: white;
-  border-radius: 20px;
-  padding: 20px 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  border: 1px solid #F0F0F0;
-  // 3列布局，考虑gap
-  flex: 0 0 calc((100% - 48px) / 3);
-  min-width: 320px;
-  max-width: 600px;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .group-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #F5F5F5;
-}
-
-.group-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .group-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  background: #FFF3E0;
-  cursor: pointer;
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: scale(1.1);
-  }
+  font-size: 26px;
+  flex-shrink: 0;
 }
 
 .group-name {
-  font-size: 30px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
   color: #333;
   cursor: pointer;
-
-  &:hover {
-    color: var(--color-secondary);
-  }
-}
-
-.group-select-btn {
-  padding: 12px 24px;
-  border-radius: 20px;
-  font-size: 21px;
-  background: #E8F4FD;
-  color: var(--color-secondary);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover, &.selected {
-    background: var(--color-secondary);
-    color: white;
-  }
 }
 
 .group-score {
+  font-size: 18px;
+  font-weight: bold;
+  color: $primary;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 24px;
-  color: #666;
-  background: #FFFBF0;
-  padding: 10px 20px;
-  border-radius: 24px;
-  border: 1px solid #FFE4B5;
+  gap: 4px;
 
-  .score-icon {
-    font-size: 24px;
+  .coin { width: 20px; height: 20px; vertical-align: middle; }
+}
+
+.group-select-btn {
+  margin-left: auto;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 15px;
+  border: 1.5px solid $primary;
+  background: white;
+  color: $primary;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba($primary, 0.08);
+  }
+
+  &.selected {
+    background: rgba($primary, 0.08);
   }
 }
 
-// 学生列表 - 网格布局，自动折行
-.students-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+// 学生网格
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 
 .student-card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 12px 16px;
-  background: transparent;
+  align-items: center;
+  padding: 14px 10px;
+  background: white;
   border-radius: 12px;
+  border: 1.5px solid #FFD6D6;
   cursor: pointer;
   transition: all 0.2s;
-  border: 2px solid transparent;
-  min-width: 80px;
   position: relative;
 
   &:hover {
-    background: rgba(74, 144, 217, 0.08);
+    border-color: $primary;
+    background: #FFF5F5;
   }
 
   &.selected {
-    background: #E3F2FD;
-    border-color: var(--color-secondary);
-
-    .student-checkbox {
-      background: var(--color-secondary);
-      color: white;
-    }
+    border-color: $primary;
+    background: #FFF0F0;
+    box-shadow: 0 0 0 1px $primary;
   }
 
   &.has-animation {
     animation: cardPulse 0.5s ease-out;
-    background: rgba(76, 175, 80, 0.1);
+    background: rgba(238, 89, 91, 0.08);
   }
-}
-
-// 加分动效
-.score-animation {
-  position: absolute;
-  top: -12px;
-  right: -8px;
-  background: linear-gradient(135deg, #4CAF50, #8BC34A);
-  color: white;
-  font-size: 21px;
-  font-weight: bold;
-  padding: 6px 14px;
-  border-radius: 14px;
-  animation: scoreFloat 2s ease-out forwards;
-  box-shadow: 0 2px 10px rgba(76, 175, 80, 0.4);
-  z-index: 10;
-}
-
-@keyframes scoreFloat {
-  0% {
-    opacity: 0;
-    transform: translateY(10px) scale(0.5);
-  }
-  20% {
-    opacity: 1;
-    transform: translateY(0) scale(1.2);
-  }
-  40% {
-    transform: translateY(-5px) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.8);
-  }
-}
-
-@keyframes cardPulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.student-checkbox {
-  display: none;
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #E0E0E0;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: #999;
 }
 
 .student-name {
-  font-size: 24px;
+  font-size: 17px;
   color: #333;
-  font-weight: 500;
-  margin-bottom: 6px;
-  line-height: 1.4;
-  white-space: nowrap;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-align: center;
 }
 
 .student-score {
   display: flex;
   align-items: center;
-  gap: 4px;
-
-  .score-star {
-    font-size: 20px;
-  }
+  justify-content: center;
+  gap: 3px;
 
   .score-value {
-    font-size: 22px;
-    color: #FF9800;
-    font-weight: 600;
+    font-size: 16px;
+    color: $primary;
+    font-weight: bold;
   }
+
+  .coin-s { width: 16px; height: 16px; vertical-align: middle; }
+}
+
+// 加分动效
+.score-animation {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  background: linear-gradient(135deg, #EE595B, #FF8A80);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 12px;
+  animation: scoreFloat 2s ease-out forwards;
+  box-shadow: 0 2px 10px rgba(238, 89, 91, 0.4);
+  z-index: 10;
+}
+
+@keyframes scoreFloat {
+  0% { opacity: 0; transform: translateY(10px) scale(0.5); }
+  20% { opacity: 1; transform: translateY(0) scale(1.2); }
+  40% { transform: translateY(-5px) scale(1); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.8); }
+}
+
+@keyframes cardPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(238, 89, 91, 0.3); }
+  100% { transform: scale(1); }
 }
 
 // 全部学生视图
@@ -1079,7 +1127,7 @@ function getSeatStudent(row: number, col: number) {
 }
 
 .all-students-title {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: bold;
   color: #333;
 }
@@ -1087,61 +1135,7 @@ function getSeatStudent(row: number, col: number) {
 .all-students-grid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  gap: 12px;
-}
-
-.mini-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 15px 10px;
-  background: #F8FAFC;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s;
-  border: 2px solid transparent;
-
-  &:hover {
-    background: #E8F4FD;
-    transform: translateY(-2px);
-  }
-
-  &.selected {
-    background: #E3F2FD;
-    border-color: var(--color-secondary);
-
-    .mini-checkbox {
-      background: var(--color-secondary);
-      color: white;
-    }
-  }
-}
-
-.mini-checkbox {
-  display: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #E0E0E0;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: #999;
-  margin-bottom: 8px;
-}
-
-.mini-name {
-  font-size: 21px;
-  color: #333;
-  font-weight: 500;
-  margin-bottom: 6px;
-  white-space: nowrap;
-}
-
-.mini-score {
-  font-size: 20px;
-  color: #FF9800;
-  font-weight: bold;
+  gap: 10px;
 }
 
 // 座位表视图
@@ -1195,13 +1189,13 @@ function getSeatStudent(row: number, col: number) {
   border-radius: 18px;
   font-size: 20px;
   background: white;
-  color: var(--color-secondary);
-  border: 1px solid var(--color-secondary);
+  color: $primary;
+  border: 1px solid $primary;
   cursor: pointer;
   transition: all 0.3s;
 
   &:hover {
-    background: var(--color-secondary);
+    background: $primary;
     color: white;
   }
 }
@@ -1235,170 +1229,170 @@ function getSeatStudent(row: number, col: number) {
 
 .seat-cell {
   width: 120px;
-  padding: 16px 10px;
-  background: #F0F7FF;
+  padding: 12px 10px;
+  background: white;
   border-radius: 12px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 2px solid transparent;
+  transition: all 0.2s;
+  border: 1.5px solid #FFD6D6;
 
   &:hover:not(.empty) {
-    background: #E3F2FD;
-    transform: scale(1.02);
+    border-color: $primary;
+    background: #FFF5F5;
   }
 
   &.empty {
     background: #F5F5F5;
+    border-color: transparent;
     cursor: default;
   }
 
   &.selected {
-    background: #BBDEFB;
-    border-color: var(--color-secondary);
-
-    .seat-checkbox {
-      background: var(--color-secondary);
-      color: white;
-    }
+    border-color: $primary;
+    background: #FFF0F0;
+    box-shadow: 0 0 0 1px $primary;
   }
 }
 
-.seat-checkbox {
-  display: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #E0E0E0;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: #999;
-  margin: 0 auto 6px;
-}
-
 .seat-name {
-  font-size: 20px;
+  font-size: 17px;
   color: #333;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
+  margin-bottom: 2px;
 }
 
 .seat-score {
-  font-size: 18px;
-  color: #FF9800;
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 16px;
+  color: $primary;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.coin-xs {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
 }
 
 // 底部工具栏
 .bottom-toolbar {
-  height: 90px;
+  height: 80px;
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 50px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
 
   &.multi-select-bar {
     gap: 30px;
-    background: linear-gradient(90deg, #E3F2FD, #F3E5F5);
   }
 }
 
 .tool-btn {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 18px 50px;
-  border-radius: 35px;
-  font-size: 27px;
+  justify-content: center;
+  padding: 0;
+  width: 200px;
+  height: 63px;
+  border-radius: 60px;
+  font-size: 20px;
   color: #666;
-  background: #F5F5F5;
+  background: rgba(#FFDBDB, 0.4);
   border: none;
   cursor: pointer;
   transition: all 0.3s;
 
   &:hover {
-    background: #E8F4FD;
-    color: var(--color-secondary);
+    background: rgba(#FFDBDB, 0.7);
+    color: $primary;
   }
 
   &.primary {
-    background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+    width: 272px;
+    height: 63px;
+    border-radius: 60px;
+    background: #EE595B;
     color: white;
+    font-size: 20px;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(74, 144, 217, 0.4);
+      box-shadow: 0 6px 20px rgba(#EE595B, 0.4);
     }
-  }
-
-  .tool-icon {
-    font-size: 32px;
   }
 }
 
 .select-btn {
   padding: 14px 28px;
   border-radius: 24px;
-  font-size: 22px;
-  background: white;
-  color: var(--color-secondary);
+  font-size: 18px;
+  background: rgba(#FFDBDB, 0.4);
+  color: $primary;
   border: none;
   cursor: pointer;
   transition: all 0.3s;
 
   &:hover {
-    background: var(--color-secondary);
-    color: white;
+    background: rgba(#FFDBDB, 0.7);
   }
 
   &.outline {
-    border: 1px solid var(--color-secondary);
+    border: 1px solid $primary;
     background: transparent;
   }
 }
 
 .selected-count {
-  font-size: 22px;
+  font-size: 20px;
   color: #333;
   padding: 0 24px;
 
   strong {
-    color: var(--color-secondary);
-    font-size: 30px;
+    color: $primary;
+    font-size: 28px;
   }
 }
 
 .confirm-btn {
-  padding: 16px 40px;
-  border-radius: 28px;
-  font-size: 24px;
-  background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+  width: 272px;
+  height: 63px;
+  border-radius: 60px;
+  font-size: 20px;
+  background: #EE595B;
   color: white;
   border: none;
   cursor: pointer;
   transition: all 0.3s;
+  font-weight: bold;
+  letter-spacing: 2px;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(74, 144, 217, 0.4);
+    box-shadow: 0 6px 20px rgba(#EE595B, 0.4);
   }
 }
 
 .cancel-btn {
   padding: 14px 28px;
   border-radius: 24px;
-  font-size: 22px;
-  background: #F5F5F5;
-  color: #666;
+  font-size: 18px;
+  background: rgba(#FFDBDB, 0.4);
+  color: $primary;
   border: none;
   cursor: pointer;
   transition: all 0.3s;
 
   &:hover {
-    background: #E0E0E0;
+    background: rgba(#FFDBDB, 0.7);
   }
 }
 
@@ -1417,38 +1411,66 @@ function getSeatStudent(row: number, col: number) {
 }
 
 .review-panel {
-  width: 750px;
-  max-height: 85vh;
+  width: 80%;
+  height: 80%;
   background: white;
-  border-radius: 28px;
+  border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
 .review-panel-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 28px 36px;
-  background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+  gap: 20px;
+  padding: 20px 32px;
+  background: $primary;
   color: white;
+  flex-shrink: 0;
 }
 
 .review-panel-title {
-  font-size: 33px;
+  font-size: 26px;
   font-weight: bold;
+  flex-shrink: 0;
+}
+
+.review-students-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.review-student-tag {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 20px;
+  font-size: 16px;
+  white-space: nowrap;
+
+  &.more {
+    background: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+  }
 }
 
 .review-panel-close {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: none;
-  font-size: 32px;
+  font-size: 28px;
   cursor: pointer;
   transition: background 0.3s;
+  flex-shrink: 0;
+  margin-left: auto;
 
   &:hover {
     background: rgba(255, 255, 255, 0.3);
@@ -1456,88 +1478,220 @@ function getSeatStudent(row: number, col: number) {
 }
 
 .review-panel-body {
-  padding: 30px 36px;
-  max-height: 55vh;
-  overflow-y: auto;
-}
-
-.review-students {
+  flex: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 28px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #eee;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.review-student-tag {
-  padding: 10px 20px;
-  background: #E8F4FD;
-  color: var(--color-secondary);
-  border-radius: 24px;
-  font-size: 21px;
+// 维度Tab
+.dim-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
-.dimension-section {
-  margin-bottom: 24px;
-}
-
-.dimension-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 16px;
-}
-
-.dimension-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-.indicator-btn {
-  padding: 16px 12px;
-  border-radius: 14px;
-  font-size: 21px;
-  border: 2px solid transparent;
+.dim-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 0;
+  background: none;
+  border: none;
   cursor: pointer;
   transition: all 0.3s;
+  position: relative;
+  color: #999;
+  font-size: 18px;
 
-  &.positive {
+  &:hover {
+    color: $primary;
+    background: #FFF8F7;
+  }
+
+  &.active {
+    color: $primary;
+    font-weight: bold;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 20%;
+      width: 60%;
+      height: 3px;
+      background: $primary;
+      border-radius: 2px;
+    }
+  }
+}
+
+.dim-tab-icon {
+  font-size: 22px;
+}
+
+.dim-tab-name {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.dim-tab-sub {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+// 指标列表
+.indicator-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 32px;
+}
+
+.indicator-group-label {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin: 12px 0 8px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &.positive-label {
     background: #E8F5E9;
     color: #2E7D32;
+  }
 
-    &:hover, &.selected {
-      background: #4CAF50;
-      color: white;
-      border-color: #2E7D32;
+  &.negative-label {
+    background: #FFF3E0;
+    color: #E65100;
+  }
+}
+
+.indicator-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.indicator-block {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1.5px solid #e8e8e8;
+  background: #FAFAFA;
+
+  &.positive {
+    &:hover {
+      border-color: #81C784;
+      background: #F1F8E9;
+    }
+
+    &.selected {
+      background: #E8F5E9;
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 1px #4CAF50;
     }
   }
 
   &.negative {
-    background: #FFF3E0;
-    color: #E65100;
+    &:hover {
+      border-color: #FFB74D;
+      background: #FFF8E1;
+    }
 
-    &:hover, &.selected {
-      background: #FF9800;
-      color: white;
-      border-color: #E65100;
+    &.selected {
+      background: #FFF3E0;
+      border-color: #FF9800;
+      box-shadow: 0 0 0 1px #FF9800;
     }
   }
+}
+
+.block-text {
+  flex: 1;
+  font-size: 15px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.block-score {
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 6px;
+
+  &.positive {
+    color: #2E7D32;
+    background: #E8F5E9;
+  }
+
+  &.negative {
+    color: #E65100;
+    background: #FFF3E0;
+  }
+
+  .indicator-block.selected &.positive {
+    background: #4CAF50;
+    color: white;
+  }
+
+  .indicator-block.selected &.negative {
+    background: #FF9800;
+    color: white;
+  }
+}
+
+.custom-tag {
+  position: absolute;
+  top: -6px;
+  right: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #FF9800, #FFC107);
+  padding: 1px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  line-height: 18px;
 }
 
 .review-panel-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 18px;
-  padding: 24px 36px;
+  padding: 20px 32px;
   background: #F8FAFC;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.footer-summary {
+  margin-right: auto;
+  font-size: 18px;
+  color: #666;
+
+  strong {
+    color: $primary;
+    font-size: 22px;
+  }
 }
 
 .btn-cancel {
-  padding: 16px 40px;
+  padding: 14px 36px;
   border-radius: 28px;
-  font-size: 24px;
+  font-size: 20px;
   background: #F5F5F5;
   color: #666;
   border: none;
@@ -1550,10 +1704,10 @@ function getSeatStudent(row: number, col: number) {
 }
 
 .btn-confirm {
-  padding: 16px 50px;
+  padding: 14px 44px;
   border-radius: 28px;
-  font-size: 24px;
-  background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+  font-size: 20px;
+  background: $primary;
   color: white;
   border: none;
   cursor: pointer;
@@ -1561,7 +1715,7 @@ function getSeatStudent(row: number, col: number) {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(74, 144, 217, 0.4);
+    box-shadow: 0 4px 15px rgba($primary, 0.4);
   }
 }
 

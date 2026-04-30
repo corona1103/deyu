@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import loginLeftBg from '@/assets/images/login-left.png'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -41,13 +42,7 @@ function login() {
   <div class="login-page">
     <!-- 左侧品牌区 -->
     <div class="brand-section">
-      <div class="brand-decoration brand-decoration-1"></div>
-      <div class="brand-decoration brand-decoration-2"></div>
-      <div class="brand-logo">
-        <div class="brand-logo-inner">北大</div>
-      </div>
-      <div class="brand-title">北大附小AI德育系统</div>
-      <div class="brand-subtitle">智慧德育 启迪未来</div>
+      <img :src="loginLeftBg" alt="AI德育系统" class="brand-bg" />
     </div>
 
     <!-- 右侧登录区 -->
@@ -135,77 +130,14 @@ function login() {
 .brand-section {
   width: 50%;
   height: 100%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 60px;
-  position: relative;
   overflow: hidden;
 }
 
-.brand-decoration {
-  position: absolute;
-  background: white;
-  opacity: 0.1;
-  border-radius: 50%;
-}
-
-.brand-decoration-1 {
-  width: 400px;
-  height: 400px;
-  top: -100px;
-  left: -100px;
-}
-
-.brand-decoration-2 {
-  width: 300px;
-  height: 300px;
-  bottom: -50px;
-  right: -50px;
-}
-
-.brand-logo {
-  width: 140px;
-  height: 140px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 40px;
-  z-index: 10;
-}
-
-.brand-logo-inner {
-  width: 120px;
-  height: 120px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.brand-title {
-  color: white;
-  font-size: 56px;
-  font-weight: bold;
-  letter-spacing: 6px;
-  margin-bottom: 20px;
-  z-index: 10;
-}
-
-.brand-subtitle {
-  color: white;
-  font-size: 24px;
-  opacity: 0.9;
-  letter-spacing: 4px;
-  z-index: 10;
+.brand-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .login-section {
