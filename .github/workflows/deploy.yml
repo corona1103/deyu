@@ -43,17 +43,6 @@ jobs:
           mkdir -p deploy/deyu-bigscreen deploy/deyu-tablet
           cp -r deyu-bigscreen/dist/* deploy/deyu-bigscreen/
           cp -r deyu-tablet/dist/* deploy/deyu-tablet/
-          # SPA fallback for GitHub Pages: root 404.html redirects sub-paths back to the correct app
-          cat > deploy/404.html << 'HTMLEOF'
-          <!DOCTYPE html><html><head><meta charset="utf-8"><script>
-          var p = window.location.pathname;
-          if (p.startsWith('/deyu/deyu-bigscreen')) {
-            window.location.replace('/deyu/deyu-bigscreen/' + '?route=' + encodeURIComponent(p.replace('/deyu/deyu-bigscreen', '')) + window.location.hash);
-          } else if (p.startsWith('/deyu/deyu-tablet')) {
-            window.location.replace('/deyu/deyu-tablet/' + '?route=' + encodeURIComponent(p.replace('/deyu/deyu-tablet', '')) + window.location.hash);
-          }
-          </script></head><body></body></html>
-          HTMLEOF
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
