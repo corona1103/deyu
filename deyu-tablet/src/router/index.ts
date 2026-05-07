@@ -54,7 +54,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/deyu/tablet/'),
+  history: createWebHistory('/deyu/deyu-tablet/'),
   routes
 })
 
