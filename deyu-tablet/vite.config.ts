@@ -4,7 +4,7 @@ import UnoCSS from 'unocss/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-  base: '/deyu/tablet/',
+  base: '/deyu/deyu-tablet/',
   plugins: [
     vue(),
     UnoCSS()
