@@ -34,7 +34,7 @@ function login() {
   })
 
   localStorage.setItem('isLoggedIn', 'true')
-  router.push('/home')
+  router.push('/review')
 }
 </script>
 
