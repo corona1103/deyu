@@ -13,7 +13,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/home', name: '首页', icon: '🏠' },
   { path: '/review', name: '行为点评', icon: '⭐' },
-  { path: '/voice-review', name: '语音点评', icon: '🎙️' },
+  { path: '/voice-review', name: 'AI点评助手', icon: '🤖' },
+  { path: '/homework', name: '作业管理', icon: '📝' },
   { path: '/report', name: '德育报告', icon: '📊' },
   { path: '/warning', name: '预警中心', icon: '⚠️' },
   { path: '/ai-phone', name: 'AI电话亭', icon: '💬' },

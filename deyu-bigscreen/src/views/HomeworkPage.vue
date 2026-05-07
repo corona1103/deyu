@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import TopNav from '@/components/layout/TopNav.vue'
 import coinIcon from '@/assets/images/coin.svg'
+
+const route = useRoute()
+const isEmbed = computed(() => route.query.embed === '1')
 
 interface HomeworkItem {
   id: string
@@ -230,7 +234,7 @@ function createHomework() {
 </script>
 
 <template>
-  <div class="homework-page">
+  <div class="homework-page" :class="{ 'embed-mode': isEmbed }">
     <TopNav />
 
     <!-- 子导航栏 -->
@@ -409,6 +413,11 @@ $primary-bg: #FFDBDB;
   background: #FFF8F7;
   display: flex;
   flex-direction: column;
+
+  &.embed-mode {
+    width: 100%;
+    height: 100vh;
+  }
 }
 
 .sub-nav {

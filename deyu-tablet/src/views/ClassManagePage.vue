@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useStudentsStore } from '@/stores/students'
+import { useUserStore } from '@/stores/user'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import { BaseCard, BaseAvatar } from '@/components/common'
 import GroupEditModal from '@/components/class/GroupEditModal.vue'
@@ -8,6 +9,22 @@ import SeatChart from '@/components/class/SeatChart.vue'
 import type { Group } from '@shared/types'
 
 const studentsStore = useStudentsStore()
+const userStore = useUserStore()
+
+// 本模块独立的班级筛选（默认选中第一个班主任班级）
+const selectedClassId = ref(userStore.homeroomClasses[0]?.id || 'c1')
+
+// 当前班级的学生和分组
+const classStudents = computed(() =>
+  studentsStore.getStudentsByClass(selectedClassId.value)
+)
+const classGroups = computed(() =>
+  studentsStore.getGroupsByClass(selectedClassId.value)
+)
+
+function onClassChange(e: Event) {
+  selectedClassId.value = (e.target as HTMLSelectElement).value
+}
 
 type TabType = 'groups' | 'students' | 'indicators' | 'seats'
 const currentTab = ref<TabType>('groups')
@@ -33,7 +50,7 @@ function handleEditGroup(group: Group) {
 }
 
 function handleDeleteGroup(group: Group) {
-  if (studentsStore.groups.length <= 1) {
+  if (classGroups.value.length <= 1) {
     alert('至少需要保留一个分组')
     return
   }
@@ -69,7 +86,25 @@ function handleGroupSaved() {
 
 <template>
   <div class="class-manage-page">
-    <PageHeader title="班级管理" />
+    <PageHeader title="班级管理" :show-back="false">
+      <template #right>
+        <div class="class-selector-wrap">
+          <select
+            class="class-selector"
+            :value="selectedClassId"
+            @change="onClassChange"
+          >
+            <option
+              v-for="cls in userStore.homeroomClasses"
+              :key="cls.id"
+              :value="cls.id"
+            >
+              {{ cls.name }}
+            </option>
+          </select>
+        </div>
+      </template>
+    </PageHeader>
 
     <main class="main-content">
       <!-- Tab 切换 -->
@@ -93,7 +128,7 @@ function handleGroupSaved() {
         </div>
         <div class="groups-list">
           <BaseCard
-            v-for="group in studentsStore.groups"
+            v-for="group in classGroups"
             :key="group.id"
             class="group-item"
           >
@@ -135,7 +170,7 @@ function handleGroupSaved() {
             <span class="col-action">操作</span>
           </div>
           <div
-            v-for="student in studentsStore.students"
+            v-for="student in classStudents"
             :key="student.id"
             class="table-row"
           >
@@ -144,7 +179,7 @@ function handleGroupSaved() {
               {{ student.name }}
             </span>
             <span class="col-group">
-              {{ studentsStore.groups.find(g => g.id === student.groupId)?.name }}
+              {{ classGroups.find(g => g.id === student.groupId)?.name }}
             </span>
             <span class="col-score">{{ student.score }}</span>
             <span class="col-action">
@@ -542,5 +577,27 @@ function handleGroupSaved() {
 .confirm-delete {
   background: $danger;
   color: white;
+}
+
+.class-selector-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.class-selector {
+  padding: 6px 28px 6px 12px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-full;
+  font-size: 13px;
+  color: $gray-700;
+  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance: none;
+  cursor: pointer;
+  min-width: 120px;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+  }
 }
 </style>

@@ -4,6 +4,7 @@ export interface Student {
   name: string
   avatar?: string
   score: number
+  classId?: string
   groupId?: string
   seatRow?: number
   seatCol?: number
@@ -37,23 +38,33 @@ export interface Teacher {
   classes: ClassInfo[]
 }
 
+// 学科类型
+export type Subject = '语文' | '数学' | '英语' | '其他'
+
+// 作业状态
+export type HomeworkStatus = 'active' | 'ended'
+
 // 作业类型
 export interface Homework {
   id: string
   title: string
-  subject: '语文' | '数学' | '英语'
-  deadline: Date
+  subject: Subject
+  deadline: string          // ISO string，方便 mock 和序列化
   classId: string
-  createdAt: Date
+  createdBy: string         // 教师姓名
+  createdAt: string         // ISO string
+  status: HomeworkStatus
+  totalStudents: number
   submissions: HomeworkSubmission[]
 }
 
 // 作业提交类型
 export interface HomeworkSubmission {
   studentId: string
-  submittedAt?: Date
+  studentName: string
+  submittedAt?: string      // ISO string
   isOnTime?: boolean
-  points?: number
+  status: 'submitted' | 'late' | 'missing'
 }
 
 // 排行榜项目类型

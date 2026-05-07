@@ -2,27 +2,45 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Student, Group, SeatConfig } from '@shared/types'
 
-// Mock 数据
+// Mock 数据 —— c1 三年级1班
 const mockStudents: Student[] = [
-  { id: 's1', name: '徐婉云', score: 235, groupId: 'g1', seatRow: 0, seatCol: 0 },
-  { id: 's2', name: '孙沐昀', score: 269, groupId: 'g1', seatRow: 0, seatCol: 1 },
-  { id: 's3', name: '刘玥希', score: 127, groupId: 'g1', seatRow: 0, seatCol: 2 },
-  { id: 's4', name: '毛昱涵', score: 160, groupId: 'g1', seatRow: 0, seatCol: 3 },
-  { id: 's5', name: '李渡嘉', score: 270, groupId: 'g2', seatRow: 1, seatCol: 0 },
-  { id: 's6', name: '张书斌', score: 244, groupId: 'g2', seatRow: 1, seatCol: 1 },
-  { id: 's7', name: '邱翌泽', score: 154, groupId: 'g2', seatRow: 1, seatCol: 2 },
-  { id: 's8', name: '张惟瑄', score: 189, groupId: 'g2', seatRow: 1, seatCol: 3 },
-  { id: 's9', name: '马子扬', score: 154, groupId: 'g3', seatRow: 2, seatCol: 0 },
-  { id: 's10', name: '张京钰', score: 197, groupId: 'g3', seatRow: 2, seatCol: 1 },
-  { id: 's11', name: '刘燕杭', score: 212, groupId: 'g3', seatRow: 2, seatCol: 2 },
-  { id: 's12', name: '王泊远', score: 173, groupId: 'g3', seatRow: 2, seatCol: 3 },
-  { id: 's13', name: '程浩月', score: 214, groupId: 'g4', seatRow: 3, seatCol: 0 },
-  { id: 's14', name: '孙雅诺', score: 142, groupId: 'g4', seatRow: 3, seatCol: 1 },
-  { id: 's15', name: '陈翌泽', score: 141, groupId: 'g4', seatRow: 3, seatCol: 2 },
-  { id: 's16', name: '李嘉懿', score: 112, groupId: 'g4', seatRow: 3, seatCol: 3 },
+  { id: 's1', name: '徐婉云', score: 235, classId: 'c1', groupId: 'g1', seatRow: 0, seatCol: 0 },
+  { id: 's2', name: '孙沐昀', score: 269, classId: 'c1', groupId: 'g1', seatRow: 0, seatCol: 1 },
+  { id: 's3', name: '刘玥希', score: 127, classId: 'c1', groupId: 'g1', seatRow: 0, seatCol: 2 },
+  { id: 's4', name: '毛昱涵', score: 160, classId: 'c1', groupId: 'g1', seatRow: 0, seatCol: 3 },
+  { id: 's5', name: '李渡嘉', score: 270, classId: 'c1', groupId: 'g2', seatRow: 1, seatCol: 0 },
+  { id: 's6', name: '张书斌', score: 244, classId: 'c1', groupId: 'g2', seatRow: 1, seatCol: 1 },
+  { id: 's7', name: '邱翌泽', score: 154, classId: 'c1', groupId: 'g2', seatRow: 1, seatCol: 2 },
+  { id: 's8', name: '张惟瑄', score: 189, classId: 'c1', groupId: 'g2', seatRow: 1, seatCol: 3 },
+  { id: 's9', name: '马子扬', score: 154, classId: 'c1', groupId: 'g3', seatRow: 2, seatCol: 0 },
+  { id: 's10', name: '张京钰', score: 197, classId: 'c1', groupId: 'g3', seatRow: 2, seatCol: 1 },
+  { id: 's11', name: '刘燕杭', score: 212, classId: 'c1', groupId: 'g3', seatRow: 2, seatCol: 2 },
+  { id: 's12', name: '王泊远', score: 173, classId: 'c1', groupId: 'g3', seatRow: 2, seatCol: 3 },
+  { id: 's13', name: '程浩月', score: 214, classId: 'c1', groupId: 'g4', seatRow: 3, seatCol: 0 },
+  { id: 's14', name: '孙雅诺', score: 142, classId: 'c1', groupId: 'g4', seatRow: 3, seatCol: 1 },
+  { id: 's15', name: '陈翌泽', score: 141, classId: 'c1', groupId: 'g4', seatRow: 3, seatCol: 2 },
+  { id: 's16', name: '李嘉懿', score: 112, classId: 'c1', groupId: 'g4', seatRow: 3, seatCol: 3 },
+  // c2 三年级2班
+  { id: 's17', name: '赵思语', score: 218, classId: 'c2', groupId: 'g5', seatRow: 0, seatCol: 0 },
+  { id: 's18', name: '钱浩然', score: 195, classId: 'c2', groupId: 'g5', seatRow: 0, seatCol: 1 },
+  { id: 's19', name: '周子涵', score: 240, classId: 'c2', groupId: 'g5', seatRow: 0, seatCol: 2 },
+  { id: 's20', name: '吴语桐', score: 162, classId: 'c2', groupId: 'g5', seatRow: 0, seatCol: 3 },
+  { id: 's21', name: '郑瑞祺', score: 203, classId: 'c2', groupId: 'g6', seatRow: 1, seatCol: 0 },
+  { id: 's22', name: '王梓萱', score: 256, classId: 'c2', groupId: 'g6', seatRow: 1, seatCol: 1 },
+  { id: 's23', name: '冯逸凡', score: 178, classId: 'c2', groupId: 'g6', seatRow: 1, seatCol: 2 },
+  { id: 's24', name: '陈思远', score: 231, classId: 'c2', groupId: 'g6', seatRow: 1, seatCol: 3 },
+  { id: 's25', name: '褚明轩', score: 149, classId: 'c2', groupId: 'g7', seatRow: 2, seatCol: 0 },
+  { id: 's26', name: '卫诗雅', score: 267, classId: 'c2', groupId: 'g7', seatRow: 2, seatCol: 1 },
+  { id: 's27', name: '蒋文博', score: 185, classId: 'c2', groupId: 'g7', seatRow: 2, seatCol: 2 },
+  { id: 's28', name: '沈嘉怡', score: 199, classId: 'c2', groupId: 'g7', seatRow: 2, seatCol: 3 },
+  { id: 's29', name: '韩宇轩', score: 224, classId: 'c2', groupId: 'g8', seatRow: 3, seatCol: 0 },
+  { id: 's30', name: '杨欣妍', score: 137, classId: 'c2', groupId: 'g8', seatRow: 3, seatCol: 1 },
+  { id: 's31', name: '朱俊杰', score: 211, classId: 'c2', groupId: 'g8', seatRow: 3, seatCol: 2 },
+  { id: 's32', name: '秦若兮', score: 188, classId: 'c2', groupId: 'g8', seatRow: 3, seatCol: 3 },
 ]
 
 const mockGroups: Group[] = [
+  // c1 三年级1班分组
   {
     id: 'g1',
     name: '孙沐昀组',
@@ -50,6 +68,35 @@ const mockGroups: Group[] = [
     icon: '🐸',
     totalScore: 857,
     students: mockStudents.filter(s => s.groupId === 'g4')
+  },
+  // c2 三年级2班分组
+  {
+    id: 'g5',
+    name: '周子涵组',
+    icon: '🐼',
+    totalScore: 815,
+    students: mockStudents.filter(s => s.groupId === 'g5')
+  },
+  {
+    id: 'g6',
+    name: '王梓萱组',
+    icon: '🦁',
+    totalScore: 868,
+    students: mockStudents.filter(s => s.groupId === 'g6')
+  },
+  {
+    id: 'g7',
+    name: '卫诗雅组',
+    icon: '🐯',
+    totalScore: 800,
+    students: mockStudents.filter(s => s.groupId === 'g7')
+  },
+  {
+    id: 'g8',
+    name: '韩宇轩组',
+    icon: '🐻',
+    totalScore: 760,
+    students: mockStudents.filter(s => s.groupId === 'g8')
   },
 ]
 
@@ -122,6 +169,25 @@ export const useStudentsStore = defineStore('students', () => {
 
   function getStudentById(id: string): Student | undefined {
     return students.value.find(s => s.id === id)
+  }
+
+  // 按班级筛选学生
+  function getStudentsByClass(classId: string): Student[] {
+    return students.value.filter(s => s.classId === classId)
+  }
+
+  // 按班级筛选分组
+  function getGroupsByClass(classId: string): Group[] {
+    const classStudentIds = new Set(students.value.filter(s => s.classId === classId).map(s => s.id))
+    return groups.value.filter(g => g.students.some(s => classStudentIds.has(s.id)))
+  }
+
+  // 获取学生所属班级名
+  function getStudentClassName(studentId: string): string {
+    const student = students.value.find(s => s.id === studentId)
+    if (!student?.classId) return ''
+    const classMap: Record<string, string> = { c1: '三年级1班', c2: '三年级2班', c3: '四年级3班' }
+    return classMap[student.classId] || ''
   }
 
   // ============ 分组管理方法 ============
@@ -279,6 +345,9 @@ export const useStudentsStore = defineStore('students', () => {
     selectGroup,
     updateStudentScore,
     getStudentById,
+    getStudentsByClass,
+    getGroupsByClass,
+    getStudentClassName,
     // 分组管理
     updateGroupInfo,
     moveStudentsToGroup,

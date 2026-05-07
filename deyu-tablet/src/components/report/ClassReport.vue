@@ -2,25 +2,41 @@
 import { computed } from 'vue'
 import { BaseCard } from '@/components/common'
 import { useReportStore } from '@/stores/report'
-import { MORAL_DIMENSIONS_NEW } from '@shared/constants'
+import type { StatPeriod } from '@shared/types'
 
+interface Props {
+  classId: string
+  period: StatPeriod
+}
+
+const props = defineProps<Props>()
 const reportStore = useReportStore()
 
 // 雷达图数据（简化版，使用进度条替代）
 const radarData = computed(() => {
-  return reportStore.classDimensionStats.map(stat => ({
+  return reportStore.getClassDimensionStats(props.classId, props.period).map(stat => ({
     ...stat,
-    percentage: Math.min(100, Math.max(0, (stat.average + 20) * 2)) // 转换为百分比
+    percentage: Math.min(100, Math.max(0, (stat.average + 20) * 2))
   }))
 })
 
 // AI评价
-const aiEvaluation = computed(() => reportStore.generateClassAIEvaluation())
+const aiEvaluation = computed(() =>
+  reportStore.generateClassAIEvaluation(props.classId, props.period)
+)
 
 // 小组排名
-const groupRanking = computed(() => {
-  return [...reportStore.groupComparison].sort((a, b) => b.totalScore - a.totalScore)
-})
+const groupRanking = computed(() =>
+  reportStore.getGroupComparison(props.classId, props.period)
+)
+
+// 维度统计
+const dimensionStats = computed(() =>
+  reportStore.getClassDimensionStats(props.classId, props.period)
+)
+
+// 维度短名
+const dimShortNames = ['快乐', '进取', '儒雅', '大气']
 
 function getDimensionColor(index: number): string {
   const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
@@ -46,7 +62,7 @@ function getScoreColor(score: number): string {
           :key="stat.dimension"
           class="radar-item"
         >
-          <div class="radar-label">{{ stat.dimension }}</div>
+          <div class="radar-label">{{ stat.icon }} {{ stat.dimension.replace(/（.*）/, '') }}</div>
           <div class="radar-bar">
             <div
               class="radar-fill"
@@ -72,11 +88,11 @@ function getScoreColor(score: number): string {
           <span class="stat-col min">最低分</span>
         </div>
         <div
-          v-for="stat in reportStore.classDimensionStats"
+          v-for="stat in dimensionStats"
           :key="stat.dimension"
           class="stats-row"
         >
-          <span class="stat-col dim">{{ stat.dimension }}</span>
+          <span class="stat-col dim">{{ stat.dimension.replace(/（.*）/, '') }}</span>
           <span class="stat-col avg" :style="{ color: getScoreColor(stat.average) }">
             {{ stat.average }}
           </span>
@@ -106,18 +122,18 @@ function getScoreColor(score: number): string {
           <div class="group-score">{{ group.totalScore }}分</div>
           <div class="dimension-scores">
             <span
-              v-for="dim in MORAL_DIMENSIONS_NEW"
+              v-for="(dim, i) in dimShortNames"
               :key="dim"
               class="dim-score"
               :title="dim"
             >
-              {{ group.scores[dim] || 0 }}
+              {{ Object.values(group.scores)[i] || 0 }}
             </span>
           </div>
         </div>
       </div>
       <div class="dimension-legend">
-        <span v-for="dim in MORAL_DIMENSIONS_NEW" :key="dim" class="legend-item">
+        <span v-for="dim in dimShortNames" :key="dim" class="legend-item">
           {{ dim }}
         </span>
       </div>
@@ -173,7 +189,7 @@ function getScoreColor(score: number): string {
 }
 
 .radar-label {
-  width: 50px;
+  width: 70px;
   font-size: 14px;
   font-weight: 500;
   color: $gray-700;
@@ -332,7 +348,8 @@ function getScoreColor(score: number): string {
 // AI评价
 .ai-card {
   padding: 20px;
-  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  background: linear-gradient(135deg, #FFF8F7, #FFECEC);
+  border: 1px solid #FFD6D6;
 }
 
 .ai-icon {

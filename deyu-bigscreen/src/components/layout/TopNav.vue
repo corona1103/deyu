@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/user'
 import schoolBadge from '@/assets/images/school-badge.png'
 
 const route = useRoute()
+const isEmbed = computed(() => route.query.embed === '1')
 const router = useRouter()
 const userStore = useUserStore()
 
@@ -80,22 +81,24 @@ function closeUserMenu() {
         </select>
         <span class="dropdown-icon">▼</span>
       </div>
-      <!-- 用户信息 + 下拉菜单 -->
-      <div class="user-dropdown" @click="toggleUserMenu">
-        <div class="user-info">
-          <div class="user-avatar">{{ teacher?.name?.[0] || '?' }}</div>
-          <span class="user-name">{{ teacherDisplayName }}</span>
-        </div>
-        <!-- 下拉菜单 -->
-        <div v-if="showUserMenu" class="dropdown-menu" @click.stop>
-          <div class="dropdown-item logout" @click="handleLogout">
-            <span class="logout-icon">🚪</span>
-            退出登录
+      <!-- 用户信息 + 下拉菜单（embed模式隐藏） -->
+      <template v-if="!isEmbed">
+        <div class="user-dropdown" @click="toggleUserMenu">
+          <div class="user-info">
+            <div class="user-avatar">{{ teacher?.name?.[0] || '?' }}</div>
+            <span class="user-name">{{ teacherDisplayName }}</span>
+          </div>
+          <!-- 下拉菜单 -->
+          <div v-if="showUserMenu" class="dropdown-menu" @click.stop>
+            <div class="dropdown-item logout" @click="handleLogout">
+              <span class="logout-icon">🚪</span>
+              退出登录
+            </div>
           </div>
         </div>
-      </div>
-      <!-- 点击外部关闭菜单的遮罩 -->
-      <div v-if="showUserMenu" class="dropdown-overlay" @click="closeUserMenu"></div>
+        <!-- 点击外部关闭菜单的遮罩 -->
+        <div v-if="showUserMenu" class="dropdown-overlay" @click="closeUserMenu"></div>
+      </template>
     </div>
   </nav>
 </template>

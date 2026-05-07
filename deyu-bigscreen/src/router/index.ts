@@ -50,6 +50,12 @@ router.beforeEach((to, _from, next) => {
   // 设置页面标题
   document.title = `北大附小AI德育系统 - ${to.meta.title || ''}`
 
+  // embed 模式跳过登录检查（由平板端 iframe 嵌套，平板端已登录）
+  if (to.query.embed === '1') {
+    next()
+    return
+  }
+
   // 检查登录状态
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
 

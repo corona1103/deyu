@@ -40,7 +40,7 @@ function sendMessage() {
 
 <template>
   <div class="ai-phone-page">
-    <PageHeader title="AI电话亭" />
+    <PageHeader title="AI电话亭" :show-back="false" />
 
     <main class="main-content">
       <!-- 聊天区域 -->

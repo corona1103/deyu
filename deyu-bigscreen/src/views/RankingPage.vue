@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import TopNav from '@/components/layout/TopNav.vue'
 import rankingDecor from '@/assets/images/ranking-bg.png'
 import coinIcon from '@/assets/images/coin.svg'
 import type { StatPeriod } from '@/types'
+
+const route = useRoute()
+const isEmbed = computed(() => route.query.embed === '1')
 
 // 当前选中的榜单维度
 const currentDimension = ref<'personal' | 'group' | 'single'>('personal')
@@ -222,7 +226,7 @@ const column3 = computed(() => restStudents.value.filter((_, i) => i % 3 === 2))
 </script>
 
 <template>
-  <div class="ranking-page">
+  <div class="ranking-page" :class="{ 'embed-mode': isEmbed }">
     <TopNav />
 
     <main class="main-content">
@@ -416,6 +420,11 @@ $text-light: #999;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+
+  &.embed-mode {
+    width: 100%;
+    height: 100vh;
+  }
 }
 
 .main-content {

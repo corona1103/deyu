@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useResponsive } from '@/composables/useResponsive'
-import { BaseAvatar, BaseModal } from '@/components/common'
+import { BaseAvatar } from '@/components/common'
 
 const router = useRouter()
 const userStore = useUserStore()
 const { isMobile } = useResponsive()
-
-const showHomeworkModal = ref(false)
-const homeworkContent = ref('')
-const isRecording = ref(false)
 
 interface FunctionItem {
   path: string
@@ -22,7 +17,8 @@ interface FunctionItem {
 
 const functions: FunctionItem[] = [
   { path: '/review', name: '行为点评', desc: '给学生加减分', icon: '⭐' },
-  { path: '/voice-review', name: '语音点评', desc: 'AI智能记录', icon: '🎙️' },
+  { path: '/voice-review', name: 'AI点评助手', desc: 'AI智能记录', icon: '🤖' },
+  { path: '/homework', name: '作业管理', desc: '发布/跟踪作业', icon: '📝' },
   { path: '/report', name: '德育报告', desc: '查看学生报告', icon: '📊' },
   { path: '/warning', name: '预警中心', desc: '关注问题学生', icon: '⚠️' },
   { path: '/ai-phone', name: 'AI电话亭', desc: '心理对话辅导', icon: '💬' },
@@ -33,19 +29,7 @@ function navigateTo(path: string) {
   router.push(path)
 }
 
-function toggleRecording() {
-  isRecording.value = !isRecording.value
-}
 
-function submitHomework() {
-  if (!homeworkContent.value.trim()) {
-    alert('请输入作业内容')
-    return
-  }
-  // TODO: 发送作业
-  showHomeworkModal.value = false
-  homeworkContent.value = ''
-}
 </script>
 
 <template>
@@ -70,18 +54,6 @@ function submitHomework() {
         </div>
       </div>
 
-      <!-- 快速发布作业 -->
-      <div
-        class="quick-homework touch-active"
-        @click="showHomeworkModal = true"
-      >
-        <div class="quick-homework-icon">📝</div>
-        <div class="quick-homework-text">
-          <div class="quick-homework-title">快速发布作业</div>
-          <div class="quick-homework-hint">语音/打字快速布置，同步大屏</div>
-        </div>
-        <span class="quick-homework-arrow">›</span>
-      </div>
     </header>
 
     <!-- 主内容区 -->
@@ -125,31 +97,6 @@ function submitHomework() {
       </div>
     </main>
 
-    <!-- 发布作业弹窗 -->
-    <BaseModal
-      v-model="showHomeworkModal"
-      title="发布作业"
-      position="bottom"
-    >
-      <textarea
-        v-model="homeworkContent"
-        class="homework-input"
-        placeholder="请输入作业内容，如：完成数学练习册第15页"
-      />
-      <div class="input-actions">
-        <div
-          class="voice-btn touch-active"
-          :class="{ recording: isRecording }"
-          @click="toggleRecording"
-        >
-          <span>🎙️</span>
-          <span>{{ isRecording ? '录音中...' : '语音输入' }}</span>
-        </div>
-        <button class="submit-homework-btn" @click="submitHomework">
-          发布
-        </button>
-      </div>
-    </BaseModal>
   </div>
 </template>
 
@@ -220,46 +167,6 @@ function submitHomework() {
   cursor: pointer;
 }
 
-.quick-homework {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 15px;
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.quick-homework-icon {
-  width: 40px;
-  height: 40px;
-  background: white;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-
-.quick-homework-text {
-  flex: 1;
-}
-
-.quick-homework-title {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.quick-homework-hint {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.quick-homework-arrow {
-  font-size: 20px;
-  opacity: 0.6;
-}
-
 .main-content {
   padding: 20px;
 
@@ -324,6 +231,7 @@ function submitHomework() {
   &.color-3 { background: linear-gradient(135deg, #F7DC6F, #F9E79F); }
   &.color-4 { background: linear-gradient(135deg, #E6E6FA, #D8BFD8); }
   &.color-5 { background: linear-gradient(135deg, #DDA0DD, #EE82EE); }
+  &.color-6 { background: linear-gradient(135deg, #90CAF9, #BBDEFB); }
 }
 
 .function-name {
@@ -398,54 +306,4 @@ function submitHomework() {
   margin-top: 5px;
 }
 
-// 作业弹窗
-.homework-input {
-  width: 100%;
-  height: 120px;
-  border: 1px solid $gray-200;
-  border-radius: 15px;
-  padding: 15px;
-  font-size: 16px;
-  resize: none;
-  margin-bottom: 15px;
-
-  &:focus {
-    outline: none;
-    border-color: $primary;
-  }
-}
-
-.input-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.voice-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: $gray-100;
-  border-radius: $radius-full;
-  font-size: 14px;
-  color: $gray-600;
-  cursor: pointer;
-
-  &.recording {
-    background: #FFEBEE;
-    color: $danger;
-  }
-}
-
-.submit-homework-btn {
-  padding: 12px 30px;
-  background: linear-gradient(135deg, $primary, $primary-light);
-  color: white;
-  border: none;
-  border-radius: $radius-full;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
 </style>

@@ -15,8 +15,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/home', name: '首页', icon: '🏠', activeIcon: '🏠' },
   { path: '/review', name: '点评', icon: '⭐', activeIcon: '⭐' },
-  { path: '/report', name: '报告', icon: '📊', activeIcon: '📊' },
-  { path: '/home', name: '我的', icon: '👤', activeIcon: '👤' }
+  { path: '/homework', name: '作业', icon: '📝', activeIcon: '📝' },
+  { path: '/report', name: '报告', icon: '📊', activeIcon: '📊' }
 ]
 
 function isActive(path: string) {

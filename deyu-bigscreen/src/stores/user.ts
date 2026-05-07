@@ -9,7 +9,9 @@ export const useUserStore = defineStore('user', () => {
     name: '张明',  // 系统配置的班主任全名，界面显示时取姓+"老师"
     classes: [
       { id: '3-1', name: '三年级1班', grade: 3, classNumber: 1, students: [], groups: [] },
-      { id: '3-2', name: '三年级2班', grade: 3, classNumber: 2, students: [], groups: [] }
+      { id: '3-2', name: '三年级2班', grade: 3, classNumber: 2, students: [], groups: [] },
+      { id: '3-5', name: '（授课）三年级5班', grade: 3, classNumber: 5, students: [], groups: [] },
+      { id: '4-3', name: '（授课）四年级3班', grade: 4, classNumber: 3, students: [], groups: [] }
     ]
   }
 

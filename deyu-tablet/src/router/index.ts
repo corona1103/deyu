@@ -45,11 +45,16 @@ const routes = [
     path: '/class-manage',
     name: 'ClassManage',
     component: () => import('@/views/ClassManagePage.vue')
+  },
+  {
+    path: '/homework',
+    name: 'Homework',
+    component: () => import('@/views/HomeworkPage.vue')
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory('/deyu/deyu-tablet/'),
+  history: createWebHistory('/deyu/tablet/'),
   routes
 })
 

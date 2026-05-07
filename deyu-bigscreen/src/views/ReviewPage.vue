@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import TopNav from '@/components/layout/TopNav.vue'
 import coinIcon from '@/assets/images/coin.svg'
+
+const route = useRoute()
+const isEmbed = computed(() => route.query.embed === '1')
 
 // 数据 - 6个小组，每组约10人
 const groups = ref([
@@ -522,7 +526,7 @@ function getSeatStudent(row: number, col: number) {
 </script>
 
 <template>
-  <div class="review-page">
+  <div class="review-page" :class="{ 'embed-mode': isEmbed }">
     <TopNav />
 
     <!-- 子导航和时间筛选 -->
@@ -875,6 +879,11 @@ $primary-bg: #FFDBDB;
   background: #FFF8F7;
   display: flex;
   flex-direction: column;
+
+  &.embed-mode {
+    width: 100%;
+    height: 100vh;
+  }
 }
 
 .sub-nav {
