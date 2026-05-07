@@ -35,6 +35,9 @@ jobs:
           mkdir -p deploy/deyu-bigscreen deploy/deyu-tablet
           cp -r deyu-bigscreen/dist/* deploy/deyu-bigscreen/
           cp -r deyu-tablet/dist/* deploy/deyu-tablet/
+          # SPA fallback: copy index.html as 404.html for client-side routing
+          cp deploy/deyu-bigscreen/index.html deploy/deyu-bigscreen/404.html
+          cp deploy/deyu-tablet/index.html deploy/deyu-tablet/404.html
           # Create root index that redirects to bigscreen
           echo '<html><head><meta http-equiv="refresh" content="0;url=deyu-bigscreen/"></head></html>' > deploy/index.html
           # Add .nojekyll to prevent Jekyll processing
