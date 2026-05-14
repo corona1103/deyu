@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { Group, Student } from '@shared/types'
+import type { Group } from '@shared/types'
 import { GROUP_ICONS } from '@shared/constants'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { BaseAvatar } from '@/components/common'
@@ -8,7 +8,8 @@ import { useStudentsStore } from '@/stores/students'
 
 interface Props {
   modelValue: boolean
-  group: Group | null
+  group: Group | null      // null = 新建模式
+  classId: string
 }
 
 const props = defineProps<Props>()
@@ -22,74 +23,75 @@ const studentsStore = useStudentsStore()
 
 // 编辑状态
 const editName = ref('')
-const editIcon = ref('')
-const selectedMemberIds = ref<string[]>([])
-const targetGroupId = ref('')
+const editIcon = ref('🌟')
 
-// 其他可用分组
-const otherGroups = computed(() =>
-  studentsStore.groups.filter(g => g.id !== props.group?.id)
+// 班级所有学生
+const classStudents = computed(() =>
+  studentsStore.getStudentsByClass(props.classId)
 )
 
-// 当前组成员
-const currentMembers = computed(() =>
-  props.group?.students || []
+// 班级所有分组
+const classGroups = computed(() =>
+  studentsStore.getGroupsByClass(props.classId)
 )
+
+// 当前组成员（编辑模式下实时从 store 获取）
+const currentMembers = computed(() => {
+  if (!props.group) return []
+  return classStudents.value.filter(s => s.groupId === props.group!.id)
+})
+
+// 弹窗标题
+const modalTitle = computed(() => props.group ? '编辑分组' : '新建分组')
+
+// 学生所属组名映射
+function getStudentGroupName(studentId: string): string {
+  const student = classStudents.value.find(s => s.id === studentId)
+  if (!student?.groupId) return ''
+  const group = classGroups.value.find(g => g.id === student.groupId)
+  return group?.name || ''
+}
 
 // 监听组变化，初始化编辑状态
-watch(() => props.group, (newGroup) => {
-  if (newGroup) {
-    editName.value = newGroup.name
-    editIcon.value = newGroup.icon
-    selectedMemberIds.value = []
-    targetGroupId.value = ''
+watch(() => [props.group, props.modelValue], () => {
+  if (props.modelValue) {
+    if (props.group) {
+      editName.value = props.group.name
+      editIcon.value = props.group.icon
+    } else {
+      editName.value = ''
+      editIcon.value = '🌟'
+    }
   }
 }, { immediate: true })
 
-function toggleMemberSelection(studentId: string) {
-  const index = selectedMemberIds.value.indexOf(studentId)
-  if (index === -1) {
-    selectedMemberIds.value.push(studentId)
-  } else {
-    selectedMemberIds.value.splice(index, 1)
-  }
+// 移出成员（变为未分组）
+function removeMember(studentId: string) {
+  studentsStore.moveStudentsToGroup([studentId], '')
 }
 
-function selectAllMembers() {
-  if (selectedMemberIds.value.length === currentMembers.value.length) {
-    selectedMemberIds.value = []
-  } else {
-    selectedMemberIds.value = currentMembers.value.map(s => s.id)
-  }
-}
-
-function moveSelectedToGroup() {
-  if (selectedMemberIds.value.length === 0) {
-    alert('请先选择要移动的成员')
-    return
-  }
-  if (!targetGroupId.value) {
-    alert('请选择目标分组')
-    return
-  }
-
-  studentsStore.moveStudentsToGroup(selectedMemberIds.value, targetGroupId.value)
-  selectedMemberIds.value = []
-  targetGroupId.value = ''
+// 添加学生到本组
+function addMember(studentId: string) {
+  if (!props.group) return
+  studentsStore.moveStudentsToGroup([studentId], props.group.id)
 }
 
 function handleSave() {
-  if (!props.group) return
-
   if (!editName.value.trim()) {
     alert('组名不能为空')
     return
   }
 
-  studentsStore.updateGroupInfo(props.group.id, {
-    name: editName.value.trim(),
-    icon: editIcon.value
-  })
+  if (props.group) {
+    // 编辑模式：只保存名称和图标（成员变动已实时处理）
+    studentsStore.updateGroupInfo(props.group.id, {
+      name: editName.value.trim(),
+      icon: editIcon.value
+    })
+  } else {
+    // 新建模式：创建分组
+    studentsStore.createGroup(editName.value.trim(), editIcon.value)
+  }
 
   emit('saved')
   emit('update:modelValue', false)
@@ -103,11 +105,11 @@ function handleClose() {
 <template>
   <BaseModal
     :model-value="modelValue"
-    title="编辑分组"
+    :title="modalTitle"
     position="center"
     @update:model-value="handleClose"
   >
-    <div v-if="group" class="group-edit-content">
+    <div class="group-edit-content">
       <!-- 基本信息 -->
       <div class="edit-section">
         <div class="section-title">基本信息</div>
@@ -138,48 +140,45 @@ function handleClose() {
         </div>
       </div>
 
-      <!-- 成员管理 -->
-      <div class="edit-section">
-        <div class="section-header">
-          <div class="section-title">成员管理 ({{ currentMembers.length }}人)</div>
-          <button class="select-all-btn" @click="selectAllMembers">
-            {{ selectedMemberIds.length === currentMembers.length ? '取消全选' : '全选' }}
-          </button>
-        </div>
-
-        <div class="members-grid">
+      <!-- 当前组员（编辑模式） -->
+      <div v-if="group" class="edit-section">
+        <div class="section-title">当前组员 ({{ currentMembers.length }}人)</div>
+        <div class="members-list">
           <div
             v-for="student in currentMembers"
             :key="student.id"
             class="member-item"
-            :class="{ selected: selectedMemberIds.includes(student.id) }"
-            @click="toggleMemberSelection(student.id)"
           >
             <BaseAvatar :name="student.name" size="sm" />
             <span class="member-name">{{ student.name }}</span>
-            <span v-if="selectedMemberIds.includes(student.id)" class="check-icon">✓</span>
+            <button class="remove-btn" @click="removeMember(student.id)">移出</button>
           </div>
+          <div v-if="currentMembers.length === 0" class="empty-hint">暂无组员</div>
         </div>
+      </div>
 
-        <!-- 批量移动 -->
-        <div v-if="selectedMemberIds.length > 0" class="move-section">
-          <div class="move-hint">
-            已选择 {{ selectedMemberIds.length }} 人，移动到：
-          </div>
-          <div class="move-controls">
-            <select v-model="targetGroupId" class="group-select">
-              <option value="">选择目标分组</option>
-              <option v-for="g in otherGroups" :key="g.id" :value="g.id">
-                {{ g.icon }} {{ g.name }}
-              </option>
-            </select>
-            <button
-              class="move-btn"
-              :disabled="!targetGroupId"
-              @click="moveSelectedToGroup"
-            >
-              移动
-            </button>
+      <!-- 添加学生 -->
+      <div v-if="group" class="edit-section">
+        <div class="section-title">添加学生</div>
+        <div class="students-list">
+          <div
+            v-for="student in classStudents"
+            :key="student.id"
+            class="student-item"
+            :class="{
+              'in-current': student.groupId === group.id,
+              'in-other': student.groupId && student.groupId !== group.id
+            }"
+            @click="!student.groupId || (student.groupId !== group.id) ? addMember(student.id) : undefined"
+          >
+            <span class="student-check">
+              <span v-if="student.groupId === group.id" class="check-mark">&#10003;</span>
+            </span>
+            <span class="student-name">{{ student.name }}</span>
+            <span v-if="student.groupId && student.groupId !== group.id" class="group-tag">
+              {{ getStudentGroupName(student.id) }}
+            </span>
+            <span v-if="!student.groupId" class="ungrouped-tag">未分组</span>
           </div>
         </div>
       </div>
@@ -204,32 +203,11 @@ function handleClose() {
   margin-bottom: 25px;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
 .section-title {
   font-size: 15px;
   font-weight: bold;
   color: $gray-800;
   margin-bottom: 12px;
-
-  .section-header & {
-    margin-bottom: 0;
-  }
-}
-
-.select-all-btn {
-  padding: 6px 12px;
-  background: $gray-100;
-  border: none;
-  border-radius: $radius-sm;
-  font-size: 13px;
-  color: $gray-600;
-  cursor: pointer;
 }
 
 .form-group {
@@ -285,11 +263,12 @@ function handleClose() {
   }
 }
 
-.members-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  max-height: 200px;
+// 当前组员列表
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
   overflow-y: auto;
 }
 
@@ -297,21 +276,9 @@ function handleClose() {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px;
+  padding: 10px 12px;
   background: $gray-50;
   border-radius: $radius-md;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s;
-
-  &:hover {
-    background: $gray-100;
-  }
-
-  &.selected {
-    background: #E3F2FD;
-    border-color: $secondary;
-  }
 }
 
 .member-name {
@@ -320,56 +287,100 @@ function handleClose() {
   color: $gray-800;
 }
 
-.check-icon {
-  color: $secondary;
-  font-weight: bold;
+.remove-btn {
+  padding: 4px 12px;
+  background: #FFEBEE;
+  color: $danger;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 12px;
+  cursor: pointer;
 }
 
-.move-section {
-  margin-top: 15px;
-  padding: 15px;
-  background: #FFF8E1;
-  border-radius: $radius-md;
-}
-
-.move-hint {
+.empty-hint {
+  text-align: center;
+  color: $gray-400;
   font-size: 14px;
-  color: $gray-700;
-  margin-bottom: 10px;
+  padding: 20px 0;
 }
 
-.move-controls {
+// 添加学生列表
+.students-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.student-item {
   display: flex;
-  gap: 10px;
-}
-
-.group-select {
-  flex: 1;
+  align-items: center;
+  gap: 8px;
   padding: 10px 12px;
-  border: 1px solid $gray-200;
+  background: $gray-50;
   border-radius: $radius-md;
-  font-size: 14px;
-  background: white;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
 
-  &:focus {
-    outline: none;
+  &:hover:not(.in-current) {
+    background: $gray-100;
     border-color: $primary;
   }
+
+  &.in-current {
+    background: #E3F2FD;
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  &.in-other {
+    background: $gray-50;
+  }
 }
 
-.move-btn {
-  padding: 10px 20px;
-  background: $secondary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: 14px;
-  cursor: pointer;
+.student-check {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid $gray-300;
+  border-radius: 4px;
+  font-size: 12px;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .in-current & {
+    background: $secondary;
+    border-color: $secondary;
+    color: white;
   }
+}
+
+.check-mark {
+  line-height: 1;
+}
+
+.student-name {
+  flex: 1;
+  font-size: 14px;
+  color: $gray-800;
+}
+
+.group-tag {
+  font-size: 11px;
+  color: $gray-500;
+  background: $gray-200;
+  padding: 2px 8px;
+  border-radius: $radius-sm;
+}
+
+.ungrouped-tag {
+  font-size: 11px;
+  color: $primary;
+  background: #FFF5F5;
+  padding: 2px 8px;
+  border-radius: $radius-sm;
 }
 
 .modal-actions {

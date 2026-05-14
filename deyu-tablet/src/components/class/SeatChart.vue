@@ -4,23 +4,40 @@ import { useStudentsStore } from '@/stores/students'
 import { BaseCard, BaseAvatar } from '@/components/common'
 import type { Student } from '@shared/types'
 
+const props = defineProps<{
+  classId?: string
+}>()
+
 const studentsStore = useStudentsStore()
 
 const isEditMode = ref(false)
 const draggingStudent = ref<Student | null>(null)
 const selectedSeat = ref<{ row: number; col: number } | null>(null)
+const showAisleSelector = ref(false)
 
 // 座位布局
 const seatLayout = computed(() => studentsStore.getSeatLayout())
 
-// 未分配座位的学生
-const unseatedStudents = computed(() => studentsStore.getUnseatedStudents())
+// 未分配座位的学生（按班级筛选）
+const unseatedStudents = computed(() => {
+  const all = studentsStore.getUnseatedStudents()
+  if (props.classId) {
+    return all.filter(s => s.classId === props.classId)
+  }
+  return all
+})
+
+// 过道列集合
+const aisleSet = computed(() =>
+  new Set(studentsStore.seatConfig.aisleAfterCols || [])
+)
 
 function toggleEditMode() {
   isEditMode.value = !isEditMode.value
   if (!isEditMode.value) {
     draggingStudent.value = null
     selectedSeat.value = null
+    showAisleSelector.value = false
   }
 }
 
@@ -51,10 +68,8 @@ function handleDrop(row: number, col: number, event: DragEvent) {
   const existingStudent = seatLayout.value[row]?.[col]
 
   if (existingStudent) {
-    // 交换座位
     studentsStore.swapSeats(studentId, existingStudent.id)
   } else {
-    // 移动到空座位
     studentsStore.updateStudentSeat(studentId, row, col)
   }
 
@@ -67,21 +82,17 @@ function handleSeatClick(row: number, col: number) {
   const student = seatLayout.value[row]?.[col]
 
   if (selectedSeat.value) {
-    // 如果已选中座位，处理移动或交换
     const selectedStudent = seatLayout.value[selectedSeat.value.row]?.[selectedSeat.value.col]
 
     if (selectedStudent) {
       if (student) {
-        // 交换
         studentsStore.swapSeats(selectedStudent.id, student.id)
       } else {
-        // 移动到空座位
         studentsStore.updateStudentSeat(selectedStudent.id, row, col)
       }
     }
     selectedSeat.value = null
   } else if (student) {
-    // 选中当前座位
     selectedSeat.value = { row, col }
   }
 }
@@ -92,7 +103,6 @@ function handleUnseatedClick(student: Student) {
   if (selectedSeat.value) {
     const existingStudent = seatLayout.value[selectedSeat.value.row]?.[selectedSeat.value.col]
     if (!existingStudent) {
-      // 分配到选中的空座位
       studentsStore.updateStudentSeat(student.id, selectedSeat.value.row, selectedSeat.value.col)
     }
     selectedSeat.value = null
@@ -105,6 +115,20 @@ function handleClearSeat(row: number, col: number) {
 
 function isSelected(row: number, col: number): boolean {
   return selectedSeat.value?.row === row && selectedSeat.value?.col === col
+}
+
+// 行列操作
+function addRow() { studentsStore.addSeatRow() }
+function removeRow() { studentsStore.removeSeatRow() }
+function addCol() { studentsStore.addSeatCol() }
+function removeCol() { studentsStore.removeSeatCol() }
+
+function toggleAisleSelector() {
+  showAisleSelector.value = !showAisleSelector.value
+}
+
+function handleToggleAisle(colIndex: number) {
+  studentsStore.toggleAisle(colIndex)
 }
 </script>
 
@@ -124,6 +148,41 @@ function isSelected(row: number, col: number): boolean {
       </div>
     </div>
 
+    <!-- 编辑模式工具栏 -->
+    <div v-if="isEditMode" class="edit-toolbar">
+      <div class="toolbar-group">
+        <button class="tool-btn" @click="addRow">+行</button>
+        <button class="tool-btn" :disabled="studentsStore.seatConfig.rows <= 1" @click="removeRow">-行</button>
+        <button class="tool-btn" @click="addCol">+列</button>
+        <button class="tool-btn" :disabled="studentsStore.seatConfig.cols <= 1" @click="removeCol">-列</button>
+      </div>
+      <div class="toolbar-group">
+        <button
+          class="tool-btn"
+          :class="{ active: showAisleSelector }"
+          @click="toggleAisleSelector"
+        >
+          添加过道
+        </button>
+      </div>
+    </div>
+
+    <!-- 过道选择器 -->
+    <div v-if="showAisleSelector" class="aisle-selector">
+      <span class="aisle-hint">点击选择在哪列后添加过道：</span>
+      <div class="aisle-options">
+        <button
+          v-for="col in studentsStore.seatConfig.cols - 1"
+          :key="col"
+          class="aisle-option"
+          :class="{ active: aisleSet.has(col - 1) }"
+          @click="handleToggleAisle(col - 1)"
+        >
+          第{{ col }}列后
+        </button>
+      </div>
+    </div>
+
     <!-- 黑板 -->
     <div class="blackboard">
       <span class="blackboard-text">黑板</span>
@@ -131,11 +190,13 @@ function isSelected(row: number, col: number): boolean {
 
     <!-- 座位网格 -->
     <BaseCard class="seats-container">
-      <div class="seats-grid" :style="{ gridTemplateColumns: `repeat(${studentsStore.seatConfig.cols}, 1fr)` }">
-        <template v-for="(row, rowIndex) in seatLayout" :key="`row-${rowIndex}`">
+      <div
+        v-for="(row, rowIndex) in seatLayout"
+        :key="`row-${rowIndex}`"
+        class="seat-row"
+      >
+        <template v-for="(student, colIndex) in row" :key="`seat-${rowIndex}-${colIndex}`">
           <div
-            v-for="(student, colIndex) in row"
-            :key="`seat-${rowIndex}-${colIndex}`"
             class="seat-cell"
             :class="{
               'has-student': student,
@@ -168,30 +229,31 @@ function isSelected(row: number, col: number): boolean {
               </div>
             </template>
           </div>
+          <!-- 过道分隔 -->
+          <div v-if="aisleSet.has(colIndex)" class="aisle-gap" />
         </template>
       </div>
     </BaseCard>
 
-    <!-- 未分配座位的学生 -->
-    <template v-if="unseatedStudents.length > 0">
-      <div class="unseated-section">
-        <div class="section-title">未分配座位 ({{ unseatedStudents.length }}人)</div>
-        <div class="unseated-list">
-          <div
-            v-for="student in unseatedStudents"
-            :key="student.id"
-            class="unseated-item"
-            :class="{ 'edit-mode': isEditMode }"
-            draggable="true"
-            @dragstart="handleDragStart(student, $event)"
-            @click="handleUnseatedClick(student)"
-          >
-            <BaseAvatar :name="student.name" size="sm" />
-            <span class="unseated-name">{{ student.name }}</span>
-          </div>
+    <!-- 未分配座位的学生（始终显示） -->
+    <div class="unseated-section">
+      <div class="section-title">未分配座位 ({{ unseatedStudents.length }}人)</div>
+      <div v-if="unseatedStudents.length > 0" class="unseated-list">
+        <div
+          v-for="student in unseatedStudents"
+          :key="student.id"
+          class="unseated-item"
+          :class="{ 'edit-mode': isEditMode }"
+          draggable="true"
+          @dragstart="handleDragStart(student, $event)"
+          @click="handleUnseatedClick(student)"
+        >
+          <BaseAvatar :name="student.name" size="sm" />
+          <span class="unseated-name">{{ student.name }}</span>
         </div>
       </div>
-    </template>
+      <div v-else class="empty-hint">所有学生均已分配座位</div>
+    </div>
 
     <!-- 编辑提示 -->
     <div v-if="isEditMode" class="edit-hint">
@@ -235,6 +297,85 @@ function isSelected(row: number, col: number): boolean {
   color: $gray-600;
 }
 
+// 编辑工具栏
+.edit-toolbar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  background: #FFF8E1;
+  border-radius: $radius-md;
+  flex-wrap: wrap;
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 8px;
+}
+
+.tool-btn {
+  padding: 6px 14px;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  color: $gray-700;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    background: $primary;
+    color: white;
+    border-color: $primary;
+  }
+}
+
+// 过道选择器
+.aisle-selector {
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  background: #E3F2FD;
+  border-radius: $radius-md;
+}
+
+.aisle-hint {
+  font-size: 13px;
+  color: $gray-600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.aisle-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aisle-option {
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  color: $gray-700;
+  cursor: pointer;
+
+  &.active {
+    background: $secondary;
+    color: white;
+    border-color: $secondary;
+  }
+}
+
 .blackboard {
   background: linear-gradient(135deg, #2E7D32, #4CAF50);
   padding: 15px;
@@ -254,12 +395,23 @@ function isSelected(row: number, col: number): boolean {
   padding: 20px;
 }
 
-.seats-grid {
-  display: grid;
+.seat-row {
+  display: flex;
   gap: 12px;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.aisle-gap {
+  width: 24px;
+  flex-shrink: 0;
 }
 
 .seat-cell {
+  flex: 1;
   aspect-ratio: 1;
   padding: 10px;
   border-radius: $radius-md;
@@ -384,6 +536,13 @@ function isSelected(row: number, col: number): boolean {
 .unseated-name {
   font-size: 14px;
   color: $gray-700;
+}
+
+.empty-hint {
+  font-size: 13px;
+  color: $gray-400;
+  text-align: center;
+  padding: 15px 0;
 }
 
 .edit-hint {

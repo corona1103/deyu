@@ -109,7 +109,8 @@ export const useStudentsStore = defineStore('students', () => {
   const seatConfig = ref<SeatConfig>({
     rows: 4,
     cols: 4,
-    layout: []
+    layout: [],
+    aisleAfterCols: []
   })
 
   const selectedStudents = computed(() =>
@@ -201,12 +202,12 @@ export const useStudentsStore = defineStore('students', () => {
     }
   }
 
-  // 将学生移动到另一个分组
+  // 将学生移动到另一个分组（targetGroupId 为空字符串表示移出分组）
   function moveStudentsToGroup(studentIds: string[], targetGroupId: string) {
     studentIds.forEach(studentId => {
       const student = students.value.find(s => s.id === studentId)
       if (student) {
-        student.groupId = targetGroupId
+        student.groupId = targetGroupId || undefined
       }
     })
     refreshGroupStudents()
@@ -331,6 +332,71 @@ export const useStudentsStore = defineStore('students', () => {
     return students.value.filter(s => s.seatRow === undefined || s.seatCol === undefined)
   }
 
+  // ============ 座位增删行列 + 过道 ============
+
+  function addSeatRow() {
+    const cols = seatConfig.value.cols
+    seatConfig.value.layout.push(new Array(cols).fill(null))
+    seatConfig.value.rows++
+  }
+
+  function removeSeatRow() {
+    if (seatConfig.value.rows <= 1) return
+    const lastRow = seatConfig.value.layout[seatConfig.value.rows - 1]
+    if (lastRow) {
+      lastRow.forEach(studentId => {
+        if (studentId) {
+          const student = students.value.find(s => s.id === studentId)
+          if (student) {
+            student.seatRow = undefined
+            student.seatCol = undefined
+          }
+        }
+      })
+    }
+    seatConfig.value.layout.pop()
+    seatConfig.value.rows--
+  }
+
+  function addSeatCol() {
+    seatConfig.value.layout.forEach(row => row.push(null))
+    seatConfig.value.cols++
+  }
+
+  function removeSeatCol() {
+    if (seatConfig.value.cols <= 1) return
+    const colIndex = seatConfig.value.cols - 1
+    seatConfig.value.layout.forEach(row => {
+      const studentId = row[colIndex]
+      if (studentId) {
+        const student = students.value.find(s => s.id === studentId)
+        if (student) {
+          student.seatRow = undefined
+          student.seatCol = undefined
+        }
+      }
+      row.pop()
+    })
+    seatConfig.value.cols--
+    // 移除超出范围的过道标记
+    if (seatConfig.value.aisleAfterCols) {
+      seatConfig.value.aisleAfterCols = seatConfig.value.aisleAfterCols.filter(c => c < seatConfig.value.cols - 1)
+    }
+  }
+
+  function toggleAisle(colIndex: number) {
+    if (!seatConfig.value.aisleAfterCols) {
+      seatConfig.value.aisleAfterCols = []
+    }
+    const idx = seatConfig.value.aisleAfterCols.indexOf(colIndex)
+    if (idx === -1) {
+      seatConfig.value.aisleAfterCols.push(colIndex)
+      seatConfig.value.aisleAfterCols.sort((a, b) => a - b)
+    } else {
+      seatConfig.value.aisleAfterCols.splice(idx, 1)
+    }
+  }
+
   // 初始化
   initSeatLayout()
 
@@ -361,6 +427,11 @@ export const useStudentsStore = defineStore('students', () => {
     swapSeats,
     clearSeat,
     setSeatConfig,
-    getUnseatedStudents
+    getUnseatedStudents,
+    addSeatRow,
+    removeSeatRow,
+    addSeatCol,
+    removeSeatCol,
+    toggleAisle
   }
 })

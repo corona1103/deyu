@@ -1,16 +1,21 @@
-import { ref, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { io, Socket } from 'socket.io-client'
 import type { WsMessage, ReviewSyncPayload } from '../types'
 
-export function useWebSocket(wsUrl?: string) {
-  const WS_URL = wsUrl || import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
+// ========== 模块级单例 ==========
+const socket = ref<Socket | null>(null)
+const isConnected = ref(false)
+const lastMessage = ref<WsMessage | null>(null)
+// 记住已加入的房间，断线重连后自动重新加入
+const joinedClasses = new Set<string>()
 
-  const socket = ref<Socket | null>(null)
-  const isConnected = ref(false)
-  const lastMessage = ref<WsMessage | null>(null)
+export function useWebSocket(wsUrl?: string) {
+  const WS_URL = wsUrl || import.meta.env.VITE_WS_URL || 'ws://localhost:3002'
 
   function connect() {
     if (socket.value?.connected) return
+    // 如果 socket 已存在但断开，不要重复创建
+    if (socket.value) return
 
     socket.value = io(WS_URL, {
       transports: ['websocket'],
@@ -19,34 +24,34 @@ export function useWebSocket(wsUrl?: string) {
 
     socket.value.on('connect', () => {
       isConnected.value = true
-      console.log('WebSocket connected')
+      console.log('[ws] connected')
+      // 重连后自动重新加入所有班级房间
+      joinedClasses.forEach(classId => {
+        socket.value?.emit('join_class', { classId })
+      })
     })
 
     socket.value.on('disconnect', () => {
       isConnected.value = false
-      console.log('WebSocket disconnected')
+      console.log('[ws] disconnected')
     })
 
     socket.value.on('message', (data: WsMessage) => {
       lastMessage.value = data
     })
 
-    // 监听得分更新
     socket.value.on('score_update', (data) => {
       lastMessage.value = { type: 'score_update', payload: data }
     })
 
-    // 监听作业提交
     socket.value.on('homework_submit', (data) => {
       lastMessage.value = { type: 'homework_submit', payload: data }
     })
 
-    // 监听排行榜更新
     socket.value.on('ranking_update', (data) => {
       lastMessage.value = { type: 'ranking_update', payload: data }
     })
 
-    // 监听点评同步
     socket.value.on('review_sync', (data) => {
       lastMessage.value = { type: 'review_sync', payload: data }
     })
@@ -60,26 +65,25 @@ export function useWebSocket(wsUrl?: string) {
     }
   }
 
+  // 不检查 connected 状态 —— socket.io-client 会自动缓冲未连接时的消息
   function emit(event: string, data: unknown) {
-    if (socket.value?.connected) {
-      socket.value.emit(event, data)
-    }
+    socket.value?.emit(event, data)
   }
 
   function joinClass(classId: string) {
+    joinedClasses.add(classId)
     emit('join_class', { classId })
   }
 
   function leaveClass(classId: string) {
+    joinedClasses.delete(classId)
     emit('leave_class', { classId })
   }
 
-  // 发送点评同步
   function sendReviewSync(payload: ReviewSyncPayload) {
     emit('review_sync', payload)
   }
 
-  // 监听特定事件
   function on(event: string, callback: (data: unknown) => void) {
     socket.value?.on(event, callback)
   }
@@ -87,10 +91,6 @@ export function useWebSocket(wsUrl?: string) {
   function off(event: string, callback?: (data: unknown) => void) {
     socket.value?.off(event, callback)
   }
-
-  onUnmounted(() => {
-    disconnect()
-  })
 
   return {
     socket,

@@ -1,11 +1,38 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import TopNav from '@/components/layout/TopNav.vue'
 import coinIcon from '@/assets/images/coin.svg'
+import { useClassReviewIndicators, useWebSocket } from '@shared/composables'
+import type { IndicatorConfigSyncPayload } from '@shared/types'
 
 const route = useRoute()
 const isEmbed = computed(() => route.query.embed === '1')
+
+// 当前班级 ID（与平板端联动）
+const currentClassId = ref('c1')
+const { availableDimensions, ignoredMap, customIndicators, isIgnored, toggleIgnore, addCustom, removeCustom, applyRemoteConfig } = useClassReviewIndicators(currentClassId)
+
+// WebSocket —— 连接服务器，监听平板端的指标配置同步
+const { connect, joinClass, on, off } = useWebSocket()
+
+function handleIndicatorConfigSync(data: unknown) {
+  const payload = data as IndicatorConfigSyncPayload
+  if (payload.classId === currentClassId.value) {
+    applyRemoteConfig(payload)
+    console.log('[ws] 指标配置已同步', payload)
+  }
+}
+
+onMounted(() => {
+  connect()
+  joinClass(currentClassId.value)
+  on('indicator_config_sync', handleIndicatorConfigSync)
+})
+
+onUnmounted(() => {
+  off('indicator_config_sync', handleIndicatorConfigSync)
+})
 
 // 数据 - 6个小组，每组约10人
 const groups = ref([
@@ -101,126 +128,8 @@ const groups = ref([
   }
 ])
 
-// 行为指标维度（来自行为指标规则CSV）
-const dimensions = [
-  {
-    name: '快乐',
-    subtitle: '身心健康',
-    icon: '😊',
-    indicators: [
-      { label: '保护自己，不做有危险的举动', type: 'positive', points: 1 },
-      { label: '能判断他人的危险行为，并主动保持安全距离', type: 'positive', points: 1 },
-      { label: '能合理判断自己的情绪状态', type: 'positive', points: 1 },
-      { label: '不开心时不随便发泄负面情绪', type: 'positive', points: 1 },
-      { label: '不挑食，按需打餐，尽量吃完所有食物', type: 'positive', points: 1 },
-      { label: '每天在校至少喝 500ml 水', type: 'positive', points: 1 },
-      { label: '认真参与眼保健操、课间操，动作标准规范', type: 'positive', points: 1 },
-      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
-      { label: '每天做一件让自己开心的事，经常面带笑容', type: 'positive', points: 2 },
-      { label: '身体不舒服或情绪不好时，能主动向老师/家长求助', type: 'positive', points: 2 },
-      { label: '大课间、小课间主动到室外跑跳、运动', type: 'positive', points: 2 },
-      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
-      { label: '长期坚持一项自己喜欢的体育运动，养成运动习惯', type: 'positive', points: 3, custom: true },
-      { label: '体育运动长期坚持满 1 个月', type: 'positive', points: 5, custom: true },
-      { label: '有自己特别感兴趣的事，长期坚持并从中获得快乐', type: 'positive', points: 3, custom: true },
-      { label: '兴趣爱好长期坚持满 1 个月', type: 'positive', points: 5, custom: true },
-      { label: '做出危险举动，未做好自我保护', type: 'negative', points: -2 },
-      { label: '情节严重的危险举动/自我保护缺失行为', type: 'negative', points: -5 },
-      { label: '主动靠近他人危险行为，未做好安全规避', type: 'negative', points: -2 },
-      { label: '情节严重的违规靠近他人危险行为', type: 'negative', points: -5 },
-      { label: '不开心时随意发泄情绪，影响他人', type: 'negative', points: -2 },
-      { label: '情节严重的情绪发泄、攻击他人行为', type: 'negative', points: -5 },
-      { label: '挑食、随意浪费食物', type: 'negative', points: -1 },
-      { label: '在校每日饮水不足 500ml', type: 'negative', points: -1 },
-      { label: '不认真参与校内 2 操，动作敷衍不标准', type: 'negative', points: -1 },
-    ]
-  },
-  {
-    name: '进取',
-    subtitle: '创新素养',
-    icon: '🚀',
-    indicators: [
-      { label: '按时完成所有作业', type: 'positive', points: 1 },
-      { label: '上课遵守纪律，不影响其他同学学习', type: 'positive', points: 1 },
-      { label: '课堂上主动举手回答问题，清晰表达自己的想法', type: 'positive', points: 1 },
-      { label: '有清晰的目标意识，能给自己制定合理的短期计划', type: 'positive', points: 1 },
-      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
-      { label: '主动向老师提问，学会对知识点提出质疑', type: 'positive', points: 2 },
-      { label: '面对有难度的任务不轻言放弃，愿意主动尝试', type: 'positive', points: 2 },
-      { label: '能按轻重缓急给事情分类，科学分配自己的时间', type: 'positive', points: 2 },
-      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
-      { label: '主动从多个角度思考和解决问题', type: 'positive', points: 3 },
-      { label: '发现学校/社区/社会可优化的地方，尝试用行动推动改变', type: 'positive', points: 3, custom: true },
-      { label: '行为优化落地成果显著', type: 'positive', points: 5, custom: true },
-      { label: '了解人工智能等最新科技发明，在生活/学习中寻找技术应用场景', type: 'positive', points: 3, custom: true },
-      { label: '科技应用落地成果显著', type: 'positive', points: 5, custom: true },
-      { label: '未按时完成作业，拖欠作业', type: 'negative', points: -2 },
-      { label: '情节严重的作业拖欠/拒不完成行为', type: 'negative', points: -5 },
-      { label: '上课扰乱课堂秩序，影响他人学习', type: 'negative', points: -2 },
-      { label: '情节严重的课堂扰乱行为', type: 'negative', points: -5 },
-      { label: '课堂上不主动发言，拒绝表达自己的想法', type: 'negative', points: -1 },
-      { label: '无目标意识，不会制定短期学习/生活计划', type: 'negative', points: -1 },
-    ]
-  },
-  {
-    name: '儒雅',
-    subtitle: '儒雅品格',
-    icon: '📚',
-    indicators: [
-      { label: '不用言语、行为故意伤害他人', type: 'positive', points: 1 },
-      { label: '不随意拿取别人物品、不破坏学校及公共财物', type: 'positive', points: 1 },
-      { label: '衣着得体整洁，个人物品摆放有序', type: 'positive', points: 1 },
-      { label: '见到师长主动问好，日常常用礼貌用语', type: 'positive', points: 1 },
-      { label: '他人说话时能安静倾听，不随意打断', type: 'positive', points: 1 },
-      { label: '在学校楼道和室内场所轻步慢走、不追逐打闹', type: 'positive', points: 1 },
-      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
-      { label: '与同学有小摩擦时能温和沟通，积极向老师寻求帮助', type: 'positive', points: 2 },
-      { label: '同学遇到困难或情绪低落时，能主动关心并提供帮助', type: 'positive', points: 2 },
-      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
-      { label: '保持稳定的情绪状态，不会轻易被外界小事影响', type: 'positive', points: 3 },
-      { label: '情绪稳定表现持续满 1 个月', type: 'positive', points: 5, custom: true },
-      { label: '保持每天安静阅读的良好习惯', type: 'positive', points: 3 },
-      { label: '每日阅读习惯持续满 1 个月', type: 'positive', points: 5, custom: true },
-      { label: '懂得欣赏多样性，能倾听并包容不一样的想法', type: 'positive', points: 3 },
-      { label: '包容差异、尊重他人表现持续满 1 个月', type: 'positive', points: 5, custom: true },
-      { label: '用言语、行为故意伤害同学/他人', type: 'negative', points: -2 },
-      { label: '情节严重的校园欺凌/伤害他人行为', type: 'negative', points: -5 },
-      { label: '随意拿取他人物品、破坏公物/校园设施', type: 'negative', points: -2 },
-      { label: '情节严重的盗窃/恶意破坏公物行为', type: 'negative', points: -5 },
-      { label: '衣着不整洁、个人物品摆放杂乱无章', type: 'negative', points: -1 },
-      { label: '见到师长不问好，日常不使用礼貌用语', type: 'negative', points: -1 },
-      { label: '随意打断他人说话，不尊重发言者', type: 'negative', points: -1 },
-      { label: '校内楼道、室内场所追逐打闹、不遵守公共秩序', type: 'negative', points: -1 },
-    ]
-  },
-  {
-    name: '大气',
-    subtitle: '责任担当',
-    icon: '💪',
-    indicators: [
-      { label: '升旗时主动行礼、大声唱国歌、全程肃立', type: 'positive', points: 1 },
-      { label: '不损坏国旗、队旗，规范佩戴、爱护红领巾', type: 'positive', points: 1 },
-      { label: '有集体荣誉感，积极参加集体活动，认真完成值日工作', type: 'positive', points: 1 },
-      { label: '热爱学校，爱护校园的一草一木，不乱扔垃圾', type: 'positive', points: 1 },
-      { label: '单日日常达标行为全项完成', type: 'positive', points: 1 },
-      { label: '遇事对人不斤斤计较，乐于分享自己的物品/知识', type: 'positive', points: 2 },
-      { label: '主动为集体服务，为班级、学校做力所能及的事', type: 'positive', points: 2 },
-      { label: '了解家乡的非遗、传统节日习俗或历史人物故事，并主动分享', type: 'positive', points: 2 },
-      { label: '主动关心社会时事，对祖国发展与进步感到自豪', type: 'positive', points: 2 },
-      { label: '单日引领成长行为全项完成', type: 'positive', points: 1 },
-      { label: '积极参与跨区域、跨国家的交流与学习，主动拓展视野', type: 'positive', points: 3, custom: true },
-      { label: '跨文化交流学习成果显著', type: 'positive', points: 5, custom: true },
-      { label: '积极传播本土先进文化，不盲目推崇他国文化', type: 'positive', points: 3, custom: true },
-      { label: '本土文化传播成果显著', type: 'positive', points: 5, custom: true },
-      { label: '升旗时不遵守礼仪，不行礼、不唱国歌、随意走动/说话', type: 'negative', points: -2 },
-      { label: '情节严重的升旗礼仪违规行为', type: 'negative', points: -5 },
-      { label: '损坏国旗、队旗、红领巾等标志，不规范佩戴红领巾', type: 'negative', points: -2 },
-      { label: '情节严重的国旗/队旗/红领巾损毁行为', type: 'negative', points: -5 },
-      { label: '无集体荣誉感，拒绝参与集体活动、不认真完成值日', type: 'negative', points: -1 },
-      { label: '破坏校园环境、乱扔垃圾、损坏校园花草树木', type: 'negative', points: -1 },
-    ]
-  }
-]
+// 行为指标维度 —— 从 shared composable 获取（联动平板端班级管理的忽略/自定义配置）
+const dimensions = availableDimensions
 
 // 可选的小组图标
 const availableIcons = ['🐱', '🐰', '🦊', '🐸', '🐻', '🦁', '🐼', '🐨', '🐯', '🦄', '🐶', '🐵', '🐷', '🐮', '🐹', '🦋', '🌸', '🌻', '⭐', '🌈']
@@ -372,17 +281,17 @@ function closeReviewModal() {
   selectedIndicators.value = []
 }
 
-function toggleIndicator(indicator: string) {
-  const index = selectedIndicators.value.indexOf(indicator)
+function toggleIndicator(indicatorId: string) {
+  const index = selectedIndicators.value.indexOf(indicatorId)
   if (index > -1) {
     selectedIndicators.value.splice(index, 1)
   } else {
-    selectedIndicators.value.push(indicator)
+    selectedIndicators.value.push(indicatorId)
   }
 }
 
-function isIndicatorSelected(indicator: string) {
-  return selectedIndicators.value.includes(indicator)
+function isIndicatorSelected(indicatorId: string) {
+  return selectedIndicators.value.includes(indicatorId)
 }
 
 function submitReview() {
@@ -393,9 +302,9 @@ function submitReview() {
 
   // 计算总分
   let totalPoints = 0
-  dimensions.forEach(dim => {
+  dimensions.value.forEach(dim => {
     dim.indicators.forEach(ind => {
-      if (selectedIndicators.value.includes(ind.label)) {
+      if (selectedIndicators.value.includes(ind.id)) {
         totalPoints += ind.points
       }
     })
@@ -757,7 +666,7 @@ function getSeatStudent(row: number, col: number) {
           <div class="dim-tabs">
             <button
               v-for="(dim, idx) in dimensions"
-              :key="dim.name"
+              :key="dim.key"
               class="dim-tab"
               :class="{ active: activeDimTab === idx }"
               @click="activeDimTab = idx"
@@ -774,13 +683,13 @@ function getSeatStudent(row: number, col: number) {
             <div class="indicator-group-label positive-label">加分项</div>
             <div class="indicator-grid">
               <div
-                v-for="ind in [...dimensions[activeDimTab].indicators.filter(i => i.type === 'positive' && i.custom), ...dimensions[activeDimTab].indicators.filter(i => i.type === 'positive' && !i.custom)]"
-                :key="ind.label"
+                v-for="ind in dimensions[activeDimTab].indicators.filter(i => i.type === 'positive')"
+                :key="ind.id"
                 class="indicator-block positive"
-                :class="{ selected: isIndicatorSelected(ind.label) }"
-                @click="toggleIndicator(ind.label)"
+                :class="{ selected: isIndicatorSelected(ind.id) }"
+                @click="toggleIndicator(ind.id)"
               >
-                <span v-if="ind.custom" class="custom-tag">特色</span>
+                <span v-if="ind.isCustom" class="custom-tag">自定义</span>
                 <div class="block-text">{{ ind.label }}</div>
                 <div class="block-score positive">+{{ ind.points }}</div>
               </div>
@@ -790,13 +699,13 @@ function getSeatStudent(row: number, col: number) {
             <div class="indicator-group-label negative-label">扣分项</div>
             <div class="indicator-grid">
               <div
-                v-for="ind in [...dimensions[activeDimTab].indicators.filter(i => i.type === 'negative' && i.custom), ...dimensions[activeDimTab].indicators.filter(i => i.type === 'negative' && !i.custom)]"
-                :key="ind.label"
+                v-for="ind in dimensions[activeDimTab].indicators.filter(i => i.type === 'negative')"
+                :key="ind.id"
                 class="indicator-block negative"
-                :class="{ selected: isIndicatorSelected(ind.label) }"
-                @click="toggleIndicator(ind.label)"
+                :class="{ selected: isIndicatorSelected(ind.id) }"
+                @click="toggleIndicator(ind.id)"
               >
-                <span v-if="ind.custom" class="custom-tag">特色</span>
+                <span v-if="ind.isCustom" class="custom-tag">自定义</span>
                 <div class="block-text">{{ ind.label }}</div>
                 <div class="block-score negative">{{ ind.points }}</div>
               </div>

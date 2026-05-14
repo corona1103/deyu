@@ -77,7 +77,7 @@ const warnings = computed(() =>
   allWarnings.value.filter(w => w.classId === selectedClassId.value)
 )
 
-const currentTab = ref<'all' | 'unhandled'>('all')
+const currentTab = ref<'all' | 'unhandled'>('unhandled')
 
 function onClassChange(e: Event) {
   selectedClassId.value = (e.target as HTMLSelectElement).value

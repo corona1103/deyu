@@ -38,8 +38,13 @@ const routes = [
   },
   {
     path: '/ai-phone',
-    name: 'AIPhone',
-    component: () => import('@/views/AIPhonePage.vue')
+    name: 'AIPhoneSelect',
+    component: () => import('@/views/AIPhoneSelectPage.vue')
+  },
+  {
+    path: '/ai-phone/chat',
+    name: 'AIPhoneChat',
+    component: () => import('@/views/AIPhoneChatPage.vue')
   },
   {
     path: '/class-manage',
@@ -50,6 +55,11 @@ const routes = [
     path: '/homework',
     name: 'Homework',
     component: () => import('@/views/HomeworkPage.vue')
+  },
+  {
+    path: '/school-manage',
+    name: 'SchoolManage',
+    component: () => import('@/views/SchoolManagePage.vue')
   }
 ]
 

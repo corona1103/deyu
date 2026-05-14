@@ -140,8 +140,22 @@ export interface ApiResponse<T> {
 
 // WebSocket消息类型
 export interface WsMessage {
-  type: 'score_update' | 'homework_submit' | 'ranking_update' | 'review_sync'
+  type: 'score_update' | 'homework_submit' | 'ranking_update' | 'review_sync' | 'indicator_config_sync'
   payload: unknown
+}
+
+// 指标配置同步负载（平板端 → 大屏端）
+export interface IndicatorConfigSyncPayload {
+  classId: string
+  ignored: string[]           // 被忽略的校级指标 ID 列表
+  customIndicators: {
+    id: string
+    label: string
+    type: 'positive' | 'negative'
+    points: number
+    dimKey: string
+    levelKey: string
+  }[]
 }
 
 // 点评同步消息负载
@@ -171,6 +185,7 @@ export interface SeatConfig {
   rows: number
   cols: number
   layout: (string | null)[][] // studentId or null for empty
+  aisleAfterCols?: number[]   // 在指定列后插入过道
 }
 
 // 语音点评解析结果
