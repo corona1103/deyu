@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import { useVoiceReviewStore } from '@/stores/voiceReview'
 import { useStudentsStore } from '@/stores/students'
 import { useReviewStore } from '@/stores/review'
 import { useUserStore } from '@/stores/user'
-import { useWebSocket } from '@shared/composables'
+import { useWebSocket, useClassReviewIndicators } from '@shared/composables'
 import {
   analyzeInput, resolveFollowUp, resolveStudentChip, resolveIndicatorChip,
   parseVoiceReview, isClassWideIntent
 } from '@/services/aiService'
 import type { PendingContext, ChipOption, AnalysisResult, AIMessage } from '@/services/aiService'
 import { MORAL_DIMENSION_INDICATORS } from '@shared/constants'
+import type { IndicatorConfigSyncPayload } from '@shared/types'
 import type { VoiceReviewResult } from '@shared/types'
 import aiRobotImg from '@/assets/images/ai-robot.png'
 import aiAvatarImg from '@/assets/images/ai-avatar.png'
@@ -20,16 +21,32 @@ const voiceReviewStore = useVoiceReviewStore()
 const studentsStore = useStudentsStore()
 const reviewStore = useReviewStore()
 const userStore = useUserStore()
-const { connect, isConnected } = useWebSocket()
+const { connect, isConnected, on, off } = useWebSocket()
 
+// 班级指标配置（与班级管理的指标管理联动）
+const currentClassId = computed(() => userStore.currentClassId || 'c1')
+const { availableDimensions, applyRemoteConfig } = useClassReviewIndicators(currentClassId)
+
+function handleIndicatorConfigSync(data: unknown) {
+  const payload = data as IndicatorConfigSyncPayload
+  if (payload.classId === currentClassId.value) {
+    applyRemoteConfig(payload)
+    console.log('[voice-review] 指标配置已同步', payload)
+  }
+}
 
 onMounted(() => {
   connect()
+  on('indicator_config_sync', handleIndicatorConfigSync)
   // 自动发送 mock 消息
   setTimeout(() => {
     inputText.value = '全班上课认真，婉云主动举手'
     sendMessage()
   }, 800)
+})
+
+onUnmounted(() => {
+  off('indicator_config_sync', handleIndicatorConfigSync)
 })
 
 // ========== 类型 ==========
@@ -457,7 +474,8 @@ function formatStudentDisplay(row: ReviewRow): string {
 }
 
 function getDimensionName(key: string) {
-  return MORAL_DIMENSION_INDICATORS.find(d => d.key === key)?.name || key
+  const dim = availableDimensions.value.find(d => d.key === key)
+  return dim ? `${dim.icon} ${dim.name}` : MORAL_DIMENSION_INDICATORS.find(d => d.key === key)?.name || key
 }
 
 // 获取班级名称
@@ -1078,15 +1096,15 @@ function handleDiscardReview(msgId: string) {
           <!-- 维度 Tab -->
           <div class="ind-dim-tabs">
             <button
-              v-for="(dim, idx) in MORAL_DIMENSION_INDICATORS"
+              v-for="(dim, idx) in availableDimensions"
               :key="dim.key"
               class="ind-dim-tab"
               :class="{ active: indicatorDimTab === idx }"
               @click="indicatorDimTab = idx"
             >
               <span class="ind-dim-tab-icon">{{ dim.icon }}</span>
-              <span class="ind-dim-tab-name">{{ dim.name.split('（')[0] }}</span>
-              <span class="ind-dim-tab-sub">{{ dim.name.match(/（(.+)）/)?.[1] || '' }}</span>
+              <span class="ind-dim-tab-name">{{ dim.name }}</span>
+              <span class="ind-dim-tab-sub">{{ dim.subtitle }}</span>
             </button>
           </div>
           <!-- 指标列表 -->
@@ -1095,12 +1113,13 @@ function handleDiscardReview(msgId: string) {
             <div class="ind-section-label positive">加分项</div>
             <div class="ind-grid">
               <div
-                v-for="ind in MORAL_DIMENSION_INDICATORS[indicatorDimTab].indicators.filter(i => i.type === 'positive')"
+                v-for="ind in availableDimensions[indicatorDimTab]?.indicators.filter(i => i.type === 'positive')"
                 :key="ind.id"
                 class="ind-grid-item positive"
                 :class="{ active: indicatorEditingRow?.indicatorId === ind.id }"
-                @click="selectIndicator(MORAL_DIMENSION_INDICATORS[indicatorDimTab].key, ind)"
+                @click="selectIndicator(availableDimensions[indicatorDimTab].key, ind)"
               >
+                <span v-if="ind.isCustom" class="custom-tag">自定义</span>
                 <span class="ind-grid-label">{{ ind.label }}</span>
                 <span class="ind-grid-score positive">+{{ ind.points }}</span>
               </div>
@@ -1109,12 +1128,13 @@ function handleDiscardReview(msgId: string) {
             <div class="ind-section-label negative">扣分项</div>
             <div class="ind-grid">
               <div
-                v-for="ind in MORAL_DIMENSION_INDICATORS[indicatorDimTab].indicators.filter(i => i.type === 'negative')"
+                v-for="ind in availableDimensions[indicatorDimTab]?.indicators.filter(i => i.type === 'negative')"
                 :key="ind.id"
                 class="ind-grid-item negative"
                 :class="{ active: indicatorEditingRow?.indicatorId === ind.id }"
-                @click="selectIndicator(MORAL_DIMENSION_INDICATORS[indicatorDimTab].key, ind)"
+                @click="selectIndicator(availableDimensions[indicatorDimTab].key, ind)"
               >
+                <span v-if="ind.isCustom" class="custom-tag">自定义</span>
                 <span class="ind-grid-label">{{ ind.label }}</span>
                 <span class="ind-grid-score negative">{{ ind.points }}</span>
               </div>
