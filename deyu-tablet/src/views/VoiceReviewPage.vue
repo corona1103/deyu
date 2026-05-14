@@ -389,9 +389,11 @@ function confirmStudentPicker() {
 // ========== 指标选择弹窗 ==========
 const showIndicatorPicker = ref(false)
 const indicatorEditingRow = ref<ReviewRow | null>(null)
+const indicatorDimTab = ref(0)
 
 function openIndicatorPicker(row: ReviewRow) {
   indicatorEditingRow.value = row
+  indicatorDimTab.value = 0
   showIndicatorPicker.value = true
 }
 
@@ -675,6 +677,7 @@ function openStudentPickerForPending() {
 // 从 pending 上下文打开指标选择弹窗
 function openIndicatorPickerForPending() {
   indicatorEditingRow.value = null // 标记为 pending 模式
+  indicatorDimTab.value = 0
   showIndicatorPicker.value = true
 }
 
@@ -1068,37 +1071,52 @@ function handleDiscardReview(msgId: string) {
     <Teleport to="body">
       <div v-if="showIndicatorPicker" class="picker-overlay" @click="showIndicatorPicker = false">
         <div class="indicator-dialog" @click.stop>
-          <div class="picker-header">
-            <span class="picker-title">选择行为指标</span>
-            <button class="indicator-close" @click="showIndicatorPicker = false">×</button>
+          <div class="ind-dialog-header">
+            <h3 class="ind-dialog-title">选择行为指标</h3>
+            <button class="ind-dialog-close" @click="showIndicatorPicker = false">×</button>
           </div>
-          <div class="indicator-body">
-            <div
-              v-for="dim in MORAL_DIMENSION_INDICATORS"
+          <!-- 维度 Tab -->
+          <div class="ind-dim-tabs">
+            <button
+              v-for="(dim, idx) in MORAL_DIMENSION_INDICATORS"
               :key="dim.key"
-              class="indicator-dim"
+              class="ind-dim-tab"
+              :class="{ active: indicatorDimTab === idx }"
+              @click="indicatorDimTab = idx"
             >
-              <div class="dim-header">
-                <span class="dim-icon">{{ dim.icon }}</span>
-                <span class="dim-name">{{ dim.name }}</span>
+              <span class="ind-dim-tab-icon">{{ dim.icon }}</span>
+              <span class="ind-dim-tab-name">{{ dim.name.split('（')[0] }}</span>
+              <span class="ind-dim-tab-sub">{{ dim.name.match(/（(.+)）/)?.[1] || '' }}</span>
+            </button>
+          </div>
+          <!-- 指标列表 -->
+          <div class="ind-dialog-body">
+            <!-- 加分项 -->
+            <div class="ind-section-label positive">加分项</div>
+            <div class="ind-grid">
+              <div
+                v-for="ind in MORAL_DIMENSION_INDICATORS[indicatorDimTab].indicators.filter(i => i.type === 'positive')"
+                :key="ind.id"
+                class="ind-grid-item positive"
+                :class="{ active: indicatorEditingRow?.indicatorId === ind.id }"
+                @click="selectIndicator(MORAL_DIMENSION_INDICATORS[indicatorDimTab].key, ind)"
+              >
+                <span class="ind-grid-label">{{ ind.label }}</span>
+                <span class="ind-grid-score positive">+{{ ind.points }}</span>
               </div>
-              <div class="dim-indicators">
-                <div
-                  v-for="ind in dim.indicators"
-                  :key="ind.id"
-                  class="dim-indicator-item"
-                  :class="{
-                    positive: ind.type === 'positive',
-                    negative: ind.type === 'negative',
-                    active: indicatorEditingRow?.indicatorId === ind.id
-                  }"
-                  @click="selectIndicator(dim.key, ind)"
-                >
-                  <span class="ind-label">{{ ind.label }}</span>
-                  <span class="ind-points" :class="ind.type">
-                    {{ ind.points > 0 ? '+' : '' }}{{ ind.points }}
-                  </span>
-                </div>
+            </div>
+            <!-- 扣分项 -->
+            <div class="ind-section-label negative">扣分项</div>
+            <div class="ind-grid">
+              <div
+                v-for="ind in MORAL_DIMENSION_INDICATORS[indicatorDimTab].indicators.filter(i => i.type === 'negative')"
+                :key="ind.id"
+                class="ind-grid-item negative"
+                :class="{ active: indicatorEditingRow?.indicatorId === ind.id }"
+                @click="selectIndicator(MORAL_DIMENSION_INDICATORS[indicatorDimTab].key, ind)"
+              >
+                <span class="ind-grid-label">{{ ind.label }}</span>
+                <span class="ind-grid-score negative">{{ ind.points }}</span>
               </div>
             </div>
           </div>
@@ -2151,114 +2169,173 @@ $purple-gradient: linear-gradient(135deg, #7C5CFC, #A78BFA);
 }
 
 // ========== 指标选择弹窗 ==========
+// ========== 指标选择弹窗（大屏风格）==========
 .indicator-dialog {
   background: white;
   border-radius: 20px;
-  max-width: 600px;
-  width: 94%;
-  max-height: 80vh;
+  max-width: 720px;
+  width: 96%;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
 }
 
-.indicator-close {
+.ind-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: $primary;
+  color: white;
+  flex-shrink: 0;
+}
+
+.ind-dialog-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.ind-dialog-close {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   border: none;
   font-size: 20px;
-  color: #999;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  &:hover { background: #eee; }
+  &:hover { background: rgba(255, 255, 255, 0.3); }
 }
 
-.indicator-dialog .picker-header {
-  padding: 20px 24px 14px;
-  border-bottom: 1px solid #f0f0f0;
-  margin-bottom: 0;
+.ind-dim-tabs {
+  display: flex;
+  border-bottom: 2px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
-.indicator-body {
+.ind-dim-tab {
   flex: 1;
-  overflow-y: auto;
-  padding: 16px 24px 24px;
-}
-
-.indicator-dim {
-  margin-bottom: 20px;
-
-  &:last-child { margin-bottom: 0; }
-}
-
-.dim-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed #eee;
+  justify-content: center;
+  gap: 5px;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  font-size: 13px;
+  position: relative;
+  transition: color 0.2s;
+
+  &:hover { color: $primary; background: #FFF8F7; }
+
+  &.active {
+    color: $primary;
+    font-weight: bold;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 15%;
+      width: 70%;
+      height: 3px;
+      background: $primary;
+      border-radius: 2px;
+    }
+  }
 }
 
-.dim-icon { font-size: 20px; }
+.ind-dim-tab-icon { font-size: 18px; }
+.ind-dim-tab-name { font-size: 14px; font-weight: 600; }
+.ind-dim-tab-sub { font-size: 11px; opacity: 0.7; }
 
-.dim-name {
-  font-size: 15px;
+.ind-dialog-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.ind-section-label {
+  font-size: 13px;
   font-weight: 600;
-  color: #333;
+  padding: 7px 14px;
+  border-radius: 6px;
+  margin: 12px 0 8px;
+
+  &:first-child { margin-top: 0; }
+
+  &.positive {
+    background: #E8F5E9;
+    color: #2E7D32;
+  }
+
+  &.negative {
+    background: #FFF3E0;
+    color: #E65100;
+  }
 }
 
-.dim-indicators {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.ind-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
 }
 
-.dim-indicator-item {
+.ind-grid-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 14px;
   cursor: pointer;
-  border: 1px solid transparent;
   transition: all 0.15s;
+  border-bottom: 1px solid #f0f0f0;
+  background: white;
 
-  &.positive { background: #F8F9FF; }
-  &.negative { background: #FFF8F6; }
-
-  &:hover {
-    border-color: $purple-light;
-    background: $purple-bg;
+  &:nth-child(odd) {
+    border-right: 1px solid #f0f0f0;
   }
 
+  &.positive:hover { background: #F1F8E9; }
+  &.negative:hover { background: #FFF8E1; }
+
   &.active {
-    border-color: $purple;
-    background: $purple-bg;
-    box-shadow: 0 0 0 2px rgba($purple, 0.15);
+    &.positive {
+      background: #E8F5E9;
+      box-shadow: inset 3px 0 0 #4CAF50;
+    }
+    &.negative {
+      background: #FFF3E0;
+      box-shadow: inset 3px 0 0 #FF9800;
+    }
   }
 }
 
-.ind-label {
+.ind-grid-label {
   flex: 1;
   font-size: 13px;
-  color: #444;
+  color: #333;
   line-height: 1.4;
 }
 
-.ind-points {
+.ind-grid-score {
+  flex-shrink: 0;
   font-size: 14px;
   font-weight: 700;
-  margin-left: 12px;
-  white-space: nowrap;
+  margin-left: 8px;
+  min-width: 30px;
+  text-align: right;
 
-  &.positive { color: $purple; }
-  &.negative { color: $danger; }
+  &.positive { color: #2E7D32; }
+  &.negative { color: #E65100; }
 }
 
 // ========== 当天全部聊天弹窗 ==========

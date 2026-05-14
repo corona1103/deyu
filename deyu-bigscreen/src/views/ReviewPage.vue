@@ -1465,15 +1465,15 @@ $primary-bg: #FFDBDB;
 .indicator-list {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 32px;
+  padding: 20px 36px;
 }
 
 .indicator-group-label {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  padding: 8px 14px;
+  padding: 10px 18px;
   border-radius: 8px;
-  margin: 12px 0 8px;
+  margin: 16px 0 12px;
 
   &:first-child {
     margin-top: 0;
@@ -1493,80 +1493,78 @@ $primary-bg: #FFDBDB;
 .indicator-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 0;
 }
 
 .indicator-block {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 12px;
+  justify-content: space-between;
+  padding: 16px 20px;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1.5px solid #e8e8e8;
-  background: #FAFAFA;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 0;
+  background: white;
+
+  // 左列右边框
+  &:nth-child(odd) {
+    border-right: 1px solid #f0f0f0;
+  }
 
   &.positive {
     &:hover {
-      border-color: #81C784;
       background: #F1F8E9;
     }
 
     &.selected {
       background: #E8F5E9;
-      border-color: #4CAF50;
-      box-shadow: 0 0 0 1px #4CAF50;
+      box-shadow: inset 3px 0 0 #4CAF50;
     }
   }
 
   &.negative {
     &:hover {
-      border-color: #FFB74D;
       background: #FFF8E1;
     }
 
     &.selected {
       background: #FFF3E0;
-      border-color: #FF9800;
-      box-shadow: 0 0 0 1px #FF9800;
+      box-shadow: inset 3px 0 0 #FF9800;
     }
   }
 }
 
 .block-text {
   flex: 1;
-  font-size: 15px;
+  font-size: 16px;
   color: #333;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .block-score {
   flex-shrink: 0;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: bold;
-  padding: 2px 8px;
-  border-radius: 6px;
+  min-width: 36px;
+  text-align: right;
 
   &.positive {
     color: #2E7D32;
-    background: #E8F5E9;
   }
 
   &.negative {
     color: #E65100;
-    background: #FFF3E0;
   }
 
   .indicator-block.selected &.positive {
-    background: #4CAF50;
-    color: white;
+    color: #1B5E20;
   }
 
   .indicator-block.selected &.negative {
-    background: #FF9800;
-    color: white;
+    color: #BF360C;
   }
 }
 

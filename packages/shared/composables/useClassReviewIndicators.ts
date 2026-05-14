@@ -42,7 +42,7 @@ const LEVEL_DEFS = [
 ]
 
 function classifyLevel(points: number): string {
-  if (points === -5) return 'warning'
+  if (points <= -2) return 'warning'
   if (points >= 3) return 'outstanding'
   if (points === 2) return 'growth'
   return 'daily'

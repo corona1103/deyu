@@ -10,50 +10,62 @@ interface KeywordRule {
 }
 
 const KEYWORD_RULES: KeywordRule[] = [
-  // === 进取（创新素养）===
-  { keywords: ['上课', '认真', '遵守纪律', '纪律', '课堂纪律'], indicatorId: 'p04', weight: 2 },
-  { keywords: ['上课', '捣乱', '扰乱', '课堂秩序'], indicatorId: 'p05', weight: 2 },
-  { keywords: ['举手', '发言', '回答', '主动回答', '积极发言', '互动'], indicatorId: 'p07', weight: 3 },
-  { keywords: ['不发言', '不举手', '不主动'], indicatorId: 'p08', weight: 2 },
-  { keywords: ['作业', '按时', '完成', '交作业'], indicatorId: 'p01', weight: 2 },
-  { keywords: ['不交作业', '没交', '拖欠', '未完成'], indicatorId: 'p02', weight: 2 },
-  { keywords: ['提问', '质疑', '问问题'], indicatorId: 'p12', weight: 2 },
-  { keywords: ['不放弃', '坚持', '努力', '尝试'], indicatorId: 'p13', weight: 2 },
-  { keywords: ['时间管理', '分配时间', '轻重缓急'], indicatorId: 'p14', weight: 2 },
-  { keywords: ['目标', '计划', '制定'], indicatorId: 'p09', weight: 1 },
+  // === 进取（创新素养）—— ID 与 MORAL_DIMENSION_INDICATORS 对齐 ===
+  { keywords: ['上课', '认真', '遵守纪律', '纪律', '课堂纪律'], indicatorId: 'P08', weight: 2 },
+  { keywords: ['上课', '捣乱', '扰乱', '课堂秩序'], indicatorId: 'P39', weight: 2 },
+  { keywords: ['举手', '发言', '回答', '主动回答', '积极发言', '互动'], indicatorId: 'P10', weight: 3 },
+  { keywords: ['不发言', '不举手', '不主动'], indicatorId: 'P12', weight: 2 },
+  { keywords: ['作业', '按时', '完成', '交作业'], indicatorId: 'P01', weight: 2 },
+  { keywords: ['不交作业', '没交', '拖欠', '未完成'], indicatorId: 'P37', weight: 2 },
+  { keywords: ['提问', '质疑', '问问题'], indicatorId: 'P22', weight: 2 },
+  { keywords: ['不放弃', '坚持', '努力', '尝试'], indicatorId: 'P23', weight: 2 },
+  { keywords: ['时间管理', '分配时间', '轻重缓急'], indicatorId: 'P24', weight: 2 },
+  { keywords: ['目标', '计划', '制定'], indicatorId: 'P13', weight: 1 },
+  { keywords: ['作业', '书写', '工整', '规范'], indicatorId: 'P04', weight: 2 },
+  { keywords: ['作业', '质量', '不佳', '潦草', '马虎'], indicatorId: 'P06', weight: 2 },
+  { keywords: ['订正', '改正'], indicatorId: 'P05', weight: 2 },
+  { keywords: ['考试', '合格', '及格'], indicatorId: 'P15', weight: 2 },
+  { keywords: ['考试', '优秀', '满分'], indicatorId: 'P35', weight: 2 },
+  { keywords: ['考试', '不合格', '不及格'], indicatorId: 'P41', weight: 2 },
+  { keywords: ['考试', '进步'], indicatorId: 'P34', weight: 2 },
   // === 快乐（身心健康）===
-  { keywords: ['保护', '安全', '小心'], indicatorId: 'h01', weight: 1 },
-  { keywords: ['危险', '受伤', '不安全'], indicatorId: 'h02', weight: 2 },
-  { keywords: ['情绪', '稳定', '开心', '快乐', '高兴'], indicatorId: 'h07', weight: 1 },
-  { keywords: ['发泄', '发脾气', '生气', '暴怒'], indicatorId: 'h09', weight: 2 },
-  { keywords: ['吃饭', '不挑食', '光盘', '吃完'], indicatorId: 'h11', weight: 2 },
-  { keywords: ['挑食', '浪费', '倒饭'], indicatorId: 'h12', weight: 2 },
-  { keywords: ['喝水', '饮水'], indicatorId: 'h13', weight: 2 },
-  { keywords: ['课间操', '眼保健操', '做操'], indicatorId: 'h15', weight: 2 },
-  { keywords: ['运动', '体育', '锻炼', '跑步', '跑跳'], indicatorId: 'h20', weight: 2 },
-  { keywords: ['笑容', '开心'], indicatorId: 'h18', weight: 1 },
+  { keywords: ['保护', '安全', '小心'], indicatorId: 'H01', weight: 1 },
+  { keywords: ['危险', '受伤', '不安全'], indicatorId: 'H31', weight: 2 },
+  { keywords: ['情绪', '稳定', '开心', '快乐', '高兴'], indicatorId: 'H03', weight: 1 },
+  { keywords: ['发泄', '发脾气', '生气', '暴怒'], indicatorId: 'H35', weight: 2 },
+  { keywords: ['吃饭', '不挑食', '光盘', '吃完'], indicatorId: 'H05', weight: 2 },
+  { keywords: ['挑食', '浪费', '倒饭'], indicatorId: 'H06', weight: 2 },
+  { keywords: ['喝水', '饮水'], indicatorId: 'H07', weight: 2 },
+  { keywords: ['课间操', '眼保健操', '做操'], indicatorId: 'H12', weight: 2 },
+  { keywords: ['运动', '体育', '锻炼', '跑步', '跑跳'], indicatorId: 'H22', weight: 2 },
+  { keywords: ['笑容', '面带笑容'], indicatorId: 'H17', weight: 1 },
+  { keywords: ['跳绳'], indicatorId: 'H14', weight: 2 },
   // === 儒雅（儒雅品格）===
-  { keywords: ['礼貌', '问好', '谢谢', '请', '对不起'], indicatorId: 'e09', weight: 2 },
-  { keywords: ['不礼貌', '粗鲁', '没礼貌'], indicatorId: 'e10', weight: 2 },
-  { keywords: ['倾听', '认真听', '听讲', '安静', '专注'], indicatorId: 'e11', weight: 2 },
-  { keywords: ['打断', '插嘴'], indicatorId: 'e12', weight: 2 },
-  { keywords: ['衣着', '整洁', '整齐'], indicatorId: 'e07', weight: 1 },
-  { keywords: ['打架', '骂人', '欺负', '伤害', '欺凌'], indicatorId: 'e02', weight: 3 },
-  { keywords: ['追逐', '打闹', '跑闹'], indicatorId: 'e14', weight: 2 },
-  { keywords: ['轻步慢走', '不追逐'], indicatorId: 'e13', weight: 2 },
-  { keywords: ['沟通', '温和', '友善'], indicatorId: 'e16', weight: 1 },
-  { keywords: ['帮助同学', '关心同学', '主动帮'], indicatorId: 'e17', weight: 2 },
-  { keywords: ['阅读', '看书', '读书'], indicatorId: 'e21', weight: 2 },
+  { keywords: ['礼貌', '问好', '谢谢', '请', '对不起'], indicatorId: 'E01', weight: 2 },
+  { keywords: ['不礼貌', '粗鲁', '没礼貌', '粗话', '脏话'], indicatorId: 'E06', weight: 2 },
+  { keywords: ['倾听', '认真听', '听讲', '安静', '专注'], indicatorId: 'E03', weight: 2 },
+  { keywords: ['打断', '插嘴'], indicatorId: 'E04', weight: 2 },
+  { keywords: ['衣着', '整洁', '整齐'], indicatorId: 'E07', weight: 1 },
+  { keywords: ['打架', '骂人', '欺负', '伤害', '欺凌'], indicatorId: 'E35', weight: 3 },
+  { keywords: ['追逐', '打闹', '跑闹'], indicatorId: 'E12', weight: 2 },
+  { keywords: ['轻步慢走', '不追逐'], indicatorId: 'E11', weight: 2 },
+  { keywords: ['沟通', '温和', '友善'], indicatorId: 'E21', weight: 1 },
+  { keywords: ['帮助同学', '关心同学', '主动帮'], indicatorId: 'E22', weight: 2 },
+  { keywords: ['阅读', '看书', '读书'], indicatorId: 'E30', weight: 2 },
+  { keywords: ['值日', '打扫'], indicatorId: 'E18', weight: 2 },
+  { keywords: ['不值日', '逃避', '不打扫'], indicatorId: 'E20', weight: 2 },
+  { keywords: ['抄作业', '抄袭'], indicatorId: 'E39', weight: 3 },
   // === 大气（责任担当）===
-  { keywords: ['升旗', '国歌', '行礼'], indicatorId: 'g01', weight: 2 },
-  { keywords: ['红领巾', '队旗'], indicatorId: 'g04', weight: 2 },
-  { keywords: ['集体', '班级活动', '集体活动', '值日', '卫生', '打扫'], indicatorId: 'g07', weight: 2 },
-  { keywords: ['不值日', '不做值日', '拒绝', '不参与'], indicatorId: 'g08', weight: 2 },
-  { keywords: ['校园', '环境', '不乱扔', '爱护'], indicatorId: 'g09', weight: 1 },
-  { keywords: ['乱扔', '垃圾', '破坏'], indicatorId: 'g10', weight: 2 },
-  { keywords: ['分享', '乐于分享', '大方'], indicatorId: 'g12', weight: 2 },
-  { keywords: ['服务', '主动服务', '为班级'], indicatorId: 'g13', weight: 2 },
-  { keywords: ['非遗', '传统', '历史'], indicatorId: 'g14', weight: 1 },
+  { keywords: ['升旗', '国歌', '行礼'], indicatorId: 'G01', weight: 2 },
+  { keywords: ['红领巾', '队旗'], indicatorId: 'G02', weight: 2 },
+  { keywords: ['集体', '班级活动', '集体活动'], indicatorId: 'G09', weight: 2 },
+  { keywords: ['不参加', '不参与', '消极'], indicatorId: 'G11', weight: 2 },
+  { keywords: ['校园', '环境', '不乱扔', '爱护'], indicatorId: 'G04', weight: 1 },
+  { keywords: ['乱扔', '垃圾', '破坏'], indicatorId: 'G08', weight: 2 },
+  { keywords: ['分享', '乐于分享', '大方'], indicatorId: 'G14', weight: 2 },
+  { keywords: ['服务', '主动服务', '为班级'], indicatorId: 'G15', weight: 2 },
+  { keywords: ['非遗', '传统', '历史'], indicatorId: 'G20', weight: 1 },
+  { keywords: ['捡垃圾', '主动捡'], indicatorId: 'G05', weight: 2 },
 ]
 
 // 全班关键词
@@ -61,23 +73,36 @@ const CLASS_WIDE_KEYWORDS = ['全班', '所有人', '大家', '每个人', '所�
 
 // ========== 负面行为指导建议 ==========
 const NEGATIVE_GUIDANCE: Record<string, string> = {
-  'e02': '老师，发现学生间的冲突行为，建议您：\n1. 先将当事学生分开，确保安全\n2. 安抚受影响学生的情绪\n3. 分别了解事情经过\n4. 如有同学出现伤情，建议尽快联系校医和家长，并提醒家长保留就医单据以便后续报销流程',
-  'e03': '这是比较严重的校园欺凌行为，建议您立即：\n1. 制止行为并隔离当事人\n2. 检查受伤学生伤情，必要时送校医院\n3. 通知学校德育处和双方家长\n4. 保留证据，填写校园安全事件记录表',
-  'e05': '建议了解破坏行为的原因，是无意还是故意。如果是故意的，需要让学生认识到后果，并承担一定的修复责任。建议及时通知家长了解情况。',
-  'e10': '建议找合适的时机和学生聊聊，用正面引导的方式，如"如果你能主动打招呼会更棒"，而非直接批评。也可以设立"礼仪小标兵"来带动班级氛围。',
-  'e14': '校内追逐打闹容易造成意外伤害。建议引导学生到操场等开阔场地活动，课间可以组织安静有趣的游戏作为替代。',
-  'h02': '请确认学生目前是否安全。建议检查是否有受伤，并提醒全班注意安全。如果是高频行为，建议与家长沟通，了解学生情况。',
-  'h03': '这是严重的安全隐患。建议立即制止并确保学生安全，检查是否有伤情，通知学校安全负责人并联系家长通报情况。',
-  'h09': '老师，您是否已及时进行控场隔离，帮助学生平复情绪？建议给学生一个安静空间冷静下来，等情绪稳定后再进行沟通引导。如果情绪持续激动，可以联系心理老师协助。',
-  'h10': '这是比较严重的情绪失控行为。建议确保周围同学安全，温和引导学生到安静空间，联系心理辅导老师介入，并及时通知家长了解近期家庭情况。',
-  'h12': '建议观察学生是否有特殊饮食需求或身体不适。可以通过"光盘行动"等趣味活动引导学生珍惜食物。',
-  'p02': '建议课后单独和学生谈谈，了解未完成作业的原因——可能是作业量大、不会做、或家庭原因。根据具体情况提供针对性帮助。',
-  'p03': '长期拖欠作业需要重点关注。建议与学生一对一沟通、联系家长了解家庭学习环境、制定"作业小目标"逐步改善，也可安排"学习伙伴"互助。',
-  'p05': '建议先用"暂停信号"提醒该同学，如多次提醒无效，可安排其到"冷静角"调整状态。课后可以单独和学生聊聊，了解是否有什么困扰。',
-  'p06': '严重的课堂扰乱行为需要特别关注。建议先温和但坚定地制止，如无法控制可请隔壁班老师或德育处协助。课后深入了解原因，与家长沟通制定行为改善计划。',
-  'g02': '建议在班会上讲解升旗礼仪的意义和规范，让学生理解国旗仪式的庄严性，培养爱国意识。',
-  'g08': '建议了解学生不参与的原因，是否有身体不适或其他困扰。可以安排"小组长轮值"制度，增强集体责任感。',
-  'g10': '建议引导学生参与班级卫生维护，培养环保意识。可以安排"环保小卫士"轮值，形成良好班风。',
+  // 儒雅 - 伤害他人
+  'E35': '老师，发现学生间的冲突行为，建议您：\n1. 先将当事学生分开，确保安全\n2. 安抚受影响学生的情绪\n3. 分别了解事情经过\n4. 如有同学出现伤情，建议尽快联系校医和家长，并提醒家长保留就医单据以便后续报销流程',
+  'E36': '这是比较严重的校园欺凌行为，建议您立即：\n1. 制止行为并隔离当事人\n2. 检查受伤学生伤情，必要时送校医院\n3. 通知学校德育处和双方家长\n4. 保留证据，填写校园安全事件记录表',
+  // 儒雅 - 财物破坏
+  'E37': '建议了解破坏行为的原因，是无意还是故意。如果是故意的，需要让学生认识到后果，并承担一定的修复责任。建议及时通知家长了解情况。',
+  // 儒雅 - 不礼貌
+  'E02': '建议找合适的时机和学生聊聊，用正面引导的方式，如"如果你能主动打招呼会更棒"，而非直接批评。也可以设立"礼仪小标兵"来带动班级氛围。',
+  'E06': '建议找合适的时机和学生聊聊，用正面引导的方式，如"如果你能主动打招呼会更棒"，而非直接批评。也可以设立"礼仪小标兵"来带动班级氛围。',
+  // 儒雅 - 追逐打闹
+  'E12': '校内追逐打闹容易造成意外伤害。建议引导学生到操场等开阔场地活动，课间可以组织安静有趣的游戏作为替代。',
+  // 快乐 - 危险行为
+  'H31': '请确认学生目前是否安全。建议检查是否有受伤，并提醒全班注意安全。如果是高频行为，建议与家长沟通，了解学生情况。',
+  'H32': '这是严重的安全隐患。建议立即制止并确保学生安全，检查是否有伤情，通知学校安全负责人并联系家长通报情况。',
+  // 快乐 - 情绪失控
+  'H35': '老师，您是否已及时进行控场隔离，帮助学生平复情绪？建议给学生一个安静空间冷静下来，等情绪稳定后再进行沟通引导。如果情绪持续激动，可以联系心理老师协助。',
+  'H36': '这是比较严重的情绪失控行为。建议确保周围同学安全，温和引导学生到安静空间，联系心理辅导老师介入，并及时通知家长了解近期家庭情况。',
+  // 快乐 - 饮食
+  'H06': '建议观察学生是否有特殊饮食需求或身体不适。可以通过"光盘行动"等趣味活动引导学生珍惜食物。',
+  // 进取 - 作业
+  'P37': '建议课后单独和学生谈谈，了解未完成作业的原因——可能是作业量大、不会做、或家庭原因。根据具体情况提供针对性帮助。',
+  'P38': '长期拖欠作业需要重点关注。建议与学生一对一沟通、联系家长了解家庭学习环境、制定"作业小目标"逐步改善，也可安排"学习伙伴"互助。',
+  // 进取 - 课堂
+  'P39': '建议先用"暂停信号"提醒该同学，如多次提醒无效，可安排其到"冷静角"调整状态。课后可以单独和学生聊聊，了解是否有什么困扰。',
+  'P40': '严重的课堂扰乱行为需要特别关注。建议先温和但坚定地制止，如无法控制可请隔壁班老师或德育处协助。课后深入了解原因，与家长沟通制定行为改善计划。',
+  // 大气 - 升旗
+  'G30': '建议在班会上讲解升旗礼仪的意义和规范，让学生理解国旗仪式的庄严性，培养爱国意识。',
+  // 大气 - 不参与集体
+  'G11': '建议了解学生不参与的原因，是否有身体不适或其他困扰。可以安排"小组长轮值"制度，增强集体责任感。',
+  // 大气 - 破坏环境
+  'G08': '建议引导学生参与班级卫生维护，培养环保意识。可以安排"环保小卫士"轮值，形成良好班风。',
 }
 
 export function getGuidanceForIndicator(indicatorId: string): string | null {
